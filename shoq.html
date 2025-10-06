@@ -1,192 +1,223 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-  <title>Live Stream</title>
-
-  <!-- JW Player + HLS -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="https://content.jwplatform.com/libraries/SAHhwvZq.js"></script>
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-    }
-
-    #player-wrapper {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #video-player {
-      width: 100%;
-      height: 100%;
-      max-width: 100vw;
-      max-height: 100vh;
-    }
-
-    #loading-overlay,
-    #error-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.85);
-      color: #fff;
-      z-index: 9999;
-      text-align: center;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .loading-spinner {
-      border: 4px solid rgba(255, 255, 255, 0.2);
-      border-top: 4px solid #fff;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    button {
-      background: #007bff;
-      border: none;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    button:hover {
-      background: #0056b3;
-    }
-
-    /* Mobile adjustments */
-    @media (max-width: 768px) {
-      .loading-spinner {
-        width: 40px;
-        height: 40px;
-      }
-      button {
-        font-size: 14px;
-        padding: 8px 16px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div id="player-wrapper">
-    <div id="video-player"></div>
-  </div>
-
-  <div id="loading-overlay">
-    <div class="loading-spinner"></div>
-    <p>Loading stream...</p>
-  </div>
-
-  <div id="error-overlay" style="display: none;">
-    <h3>Stream Error</h3>
-    <p id="error-message">Unable to load the stream. Please try again later.</p>
-    <button id="retry-btn">Retry</button>
-  </div>
-
-  <script>
-    // Stream configuration
-    const channelData = {
-      name: "Prime (India W vs Pak W)",
-      streamType: "mpd",
-      streamUrl: "https://live2.shoq.com.pk/live/eds/ICC_Women_World_Cup_2025/DASH/ICC_Women_World_Cup_2025.mpd",
-      drmKey: "a6dfc4f17d70d8d07639659193f03b25",
-      drmKeyId: "893eacfabe386144b81733d622a7ad17",
-      licenseUrl: ""
-    };
-
-    let playerInstance = null;
-
-    function initializePlayer() {
-      const loadingOverlay = document.getElementById('loading-overlay');
-      const errorOverlay = document.getElementById('error-overlay');
-
-      let fileType = (channelData.streamType === 'mpd') ? 'dash' : 'hls';
-      let sources = [];
-
-      // Build source with ClearKey DRM if available
-      sources.push({
-        file: channelData.streamUrl,
-        drm: {
-          clearkey: {
-            keyId: channelData.drmKeyId,
-            key: channelData.drmKey
-          }
+    <script src="https://ssl.p.jwpcdn.com/player/v/8.32.1/jwplayer.js" type="text/javascript"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
         }
-      });
 
-      const playerConfig = {
-        type: fileType,
-        width: "100%",
-        height: "100%",
-        autostart: true,
-        controls: true,
-        stretching: "uniform",
-        responsive: true,
-        playlist: [{ sources }]
-      };
+        #player-container {
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            margin: 10px 0;
+        }
 
-      playerInstance = jwplayer("video-player").setup(playerConfig);
+        /* Custom scrollbar styles */
+        body::-webkit-scrollbar {
+            width: 8px;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
 
-      playerInstance.on("ready", hideLoading);
-      playerInstance.on("error", (err) => showError("Player Error: " + (err.message || "Unknown error")));
-      playerInstance.on("setupError", (err) => showError("Setup Error: " + (err.message || "Initialization failed")));
-    }
+        body::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            background-color: rgba(140, 140, 140, 0.5);
+        }
 
-    function hideLoading() {
-      document.getElementById("loading-overlay").style.display = "none";
-    }
+        body::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(140, 140, 140, 0.7);
+        }
 
-    function showError(message) {
-      document.getElementById("loading-overlay").style.display = "none";
-      document.getElementById("error-message").textContent = message;
-      document.getElementById("error-overlay").style.display = "flex";
-    }
+        .ad-container {
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<script type='text/javascript' src='//staunchtownsegg.com/09/f1/e9/09f1e956c711aea6a898d5abbb78d092.js'></script>
 
-    document.getElementById("retry-btn").addEventListener("click", () => {
-      document.getElementById("error-overlay").style.display = "none";
-      document.getElementById("loading-overlay").style.display = "flex";
-      if (playerInstance) playerInstance.remove();
-      initializePlayer();
+<body>
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key': '701fef7de243c4e8e91e6e6b3a2fea1e',
+                'format': 'iframe',
+                'height': 90,
+                'width': 728,
+                'params': {}
+            };
+        </script>
+        <script type="text/javascript" src="//staunchtownsegg.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
+    </div>
+
+    <div id="player-container"></div>
+
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key': '701fef7de243c4e8e91e6e6b3a2fea1e',
+                'format': 'iframe',
+                'height': 90,
+                'width': 728,
+                'params': {}
+            };
+        </script>
+        <script type="text/javascript" src="//staunchtownsegg.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
+    </div>
+
+    <script type="text/javascript">
+        jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
+        jwplayer("player-container").setup({
+            file: "https://live.shoq.com.pk/live/eds/ICC_Women_World_Cup_2025/DASH/ICC_Women_World_Cup_2025.mpd",
+            aspectratio: '16:9',
+            width: '100%',
+            autostart: true,
+            image: 'https://mma.prnewswire.com/media/1919551/WillowTV_Logo.jpg?p=facebook',
+            mute: false,
+            preload: 'auto',
+            captions: { color: 'white', fontSize: '16px', backgroundOpacity: 0 },
+            sharing: {
+                sites: ['facebook', 'twitter']
+            },
+            drm: {
+                "clearkey": {
+                    "keyId": "a6dfc4f17d70d8d07639659193f03b25",
+                    "key": "893eacfabe386144b81733d622a7ad17"
+                }
+            }
+        });
+
+        // Ensure playback compatibility for mobile devices
+        jwplayer().on('ready', function () {
+            const player = document.querySelector('#player-container');
+            if (player) {
+                player.style.height = window.innerHeight + 'px';
+            }
+        });
+
+        jwplayer().on('play', function () {
+            document.body.style.backgroundColor = "#000";
+        });
+
+        jwplayer().on('error', function (e) {
+            console.error("Playback error:", e.message);
+        });
+    </script>
+<!-- Anti-Adblock Popup -->
+<div class="adb" id="adb" style="display: none;">
+    <div class="adbs">
+        <h3>Adblock Detected</h3>
+        <p>Please disable your adblocker to continue browsing this site.</p>
+    </div>
+</div>
+
+<style>
+.adb {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.adbs {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+.adbs h3 {
+    color: #d00;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+.adbs p {
+    font-size: 16px;
+    color: #333;
+}
+</style>
+
+<script>
+function showAdblockPopup() {
+    document.getElementById('adb').style.display = 'flex';
+}
+
+async function detectAdblock() {
+    return new Promise(resolve => {
+        let detected = false;
+
+        // Create bait elements
+        const bait = document.createElement('div');
+        bait.innerHTML = '&nbsp;';
+        bait.className = 'adsbox ad adsense banner-ad';
+        bait.style.cssText = 'width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;visibility:visible;';
+        document.body.appendChild(bait);
+
+        const img = document.createElement('img');
+        img.src = 'https://pagead2.googlesyndication.com/pagead/imgad?id=CAASFeDxyz';
+        img.style.cssText = 'width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;';
+        img.onerror = () => { detected = true; };
+        document.body.appendChild(img);
+
+        const iframe = document.createElement('iframe');
+        iframe.src = 'https://googleads.g.doubleclick.net/pagead/html/r2023/sample-ad.html';
+        iframe.style.cssText = 'width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;';
+        iframe.onerror = () => { detected = true; };
+        document.body.appendChild(iframe);
+
+        // Wait 300ms to give adblockers time
+        setTimeout(() => {
+            const baitStyles = window.getComputedStyle(bait);
+            if (
+                detected ||
+                baitStyles.display === 'none' ||
+                baitStyles.visibility === 'hidden' ||
+                bait.offsetHeight === 0 ||
+                bait.offsetParent === null
+            ) {
+                detected = true;
+            }
+
+            // Cleanup
+            bait.remove();
+            img.remove();
+            iframe.remove();
+
+            resolve(detected);
+        }, 300);
     });
+}
 
-    // Initialize when ready
-    document.addEventListener("DOMContentLoaded", initializePlayer);
+window.addEventListener('DOMContentLoaded', async () => {
+    const isBlocked = await detectAdblock();
+    if (isBlocked) {
+        showAdblockPopup();
+    }
+});
+</script>
 
-    window.addEventListener("beforeunload", () => {
-      if (playerInstance) playerInstance.remove();
-    });
-  </script>
 </body>
-  <script type='text/javascript' src='//packagebellysmoothly.com/63/88/ac/6388ace5c2a702a7b58f724683244363.js'></script>
+<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+
 </html>

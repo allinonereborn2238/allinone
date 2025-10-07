@@ -1,192 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-  <title>Live Stream</title>
 
-  <!-- JW Player + HLS -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="https://content.jwplatform.com/libraries/SAHhwvZq.js"></script>
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-    }
-
-    #player-wrapper {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #video-player {
-      width: 100%;
-      height: 100%;
-      max-width: 100vw;
-      max-height: 100vh;
-    }
-
-    #loading-overlay,
-    #error-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.85);
-      color: #fff;
-      z-index: 9999;
-      text-align: center;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .loading-spinner {
-      border: 4px solid rgba(255, 255, 255, 0.2);
-      border-top: 4px solid #fff;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    button {
-      background: #007bff;
-      border: none;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    button:hover {
-      background: #0056b3;
-    }
-
-    /* Mobile adjustments */
-    @media (max-width: 768px) {
-      .loading-spinner {
-        width: 40px;
-        height: 40px;
-      }
-      button {
-        font-size: 14px;
-        padding: 8px 16px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div id="player-wrapper">
-    <div id="video-player"></div>
-  </div>
-
-  <div id="loading-overlay">
-    <div class="loading-spinner"></div>
-    <p>Loading stream...</p>
-  </div>
-
-  <div id="error-overlay" style="display: none;">
-    <h3>Stream Error</h3>
-    <p id="error-message">Unable to load the stream. Please try again later.</p>
-    <button id="retry-btn">Retry</button>
-  </div>
-
-  <script>
-    // Stream configuration
-    const channelData = {
-      name: "Prime (India W vs Pak W)",
-      streamType: "mpd",
-      streamUrl: "https://a57aivottepl-a.akamaihd.net/pdx-nitro/live/clients/dash/enc/btnbacwsfy/out/v1/30c1e247dafe4ea09faa4f6c55cf0da3/cenc.mpd",
-      drmKey: "d5ddadddceb398f349d252109a03f5f5",
-      drmKeyId: "ccb468efbdffd4eac17be5b2dc129ab1",
-      licenseUrl: ""
-    };
-
-    let playerInstance = null;
-
-    function initializePlayer() {
-      const loadingOverlay = document.getElementById('loading-overlay');
-      const errorOverlay = document.getElementById('error-overlay');
-
-      let fileType = (channelData.streamType === 'mpd') ? 'dash' : 'hls';
-      let sources = [];
-
-      // Build source with ClearKey DRM if available
-      sources.push({
-        file: channelData.streamUrl,
-        drm: {
-          clearkey: {
-            keyId: channelData.drmKeyId,
-            key: channelData.drmKey
-          }
-        }
-      });
-
-      const playerConfig = {
-        type: fileType,
-        width: "100%",
-        height: "100%",
-        autostart: true,
-        controls: true,
-        stretching: "uniform",
-        responsive: true,
-        playlist: [{ sources }]
-      };
-
-      playerInstance = jwplayer("video-player").setup(playerConfig);
-
-      playerInstance.on("ready", hideLoading);
-      playerInstance.on("error", (err) => showError("Player Error: " + (err.message || "Unknown error")));
-      playerInstance.on("setupError", (err) => showError("Setup Error: " + (err.message || "Initialization failed")));
-    }
-
-    function hideLoading() {
-      document.getElementById("loading-overlay").style.display = "none";
-    }
-
-    function showError(message) {
-      document.getElementById("loading-overlay").style.display = "none";
-      document.getElementById("error-message").textContent = message;
-      document.getElementById("error-overlay").style.display = "flex";
-    }
-
-    document.getElementById("retry-btn").addEventListener("click", () => {
-      document.getElementById("error-overlay").style.display = "none";
-      document.getElementById("loading-overlay").style.display = "flex";
-      if (playerInstance) playerInstance.remove();
-      initializePlayer();
-    });
-
-    // Initialize when ready
-    document.addEventListener("DOMContentLoaded", initializePlayer);
-
-    window.addEventListener("beforeunload", () => {
-      if (playerInstance) playerInstance.remove();
-    });
-  </script>
-</body>
-  <script type='text/javascript' src='//packagebellysmoothly.com/63/88/ac/6388ace5c2a702a7b58f724683244363.js'></script>
-</html>
+       <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Willow HD - JW Player</title>
+        <script src="https://cdn.jwplayer.com/libraries/KB5zFt7A.js"></script>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; background: #000; }
+            #player { width: 100%; height: 100vh; }
+            .info-bar { position: absolute; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); color: white; padding: 15px; z-index: 1000; text-align: center; font-size: 18px; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+        <div class="info-bar">Willow HD</div>
+        <div id="player"></div>
+        <script>
+            var player = jwplayer("player");
+            player.setup({
+                playlist: [{
+                    file: "https://a57aivottepl-a.akamaihd.net/pdx-nitro/live/clients/dash/enc/btnbacwsfy/out/v1/30c1e247dafe4ea09faa4f6c55cf0da3/cenc.mpd",
+                    drm: {
+                        clearkey: {
+                            keyId: "d5ddadddceb398f349d252109a03f5f5",
+                            key: "ccb468efbdffd4eac17be5b2dc129ab1"
+                        }
+                    }
+                }],
+                width: "100%",
+                height: "100%",
+                aspectratio: "16:9",
+                autostart: true,
+                controls: true,
+                displaytitle: true,
+                title: "Willow HD"
+            });
+        </script>
+    </body>
+    </html>
+    

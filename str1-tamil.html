@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>allinone</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.ui.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/controls.min.css" crossorigin="anonymous">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: #000;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .shaka-video-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      object-fit: contain;
+    }
+    .shaka-spinner-container,
+    .shaka-spinner,
+    .shaka-spinner-svg {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+    }
+
+    /* Chrome Only Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      backdrop-filter: blur(6px);
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeIn .5s ease;
+    }
+    .modal.hidden { display: none !important; }
+    .modal-content {
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.3);
+      border-radius: 20px;
+      padding: 30px 25px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      color: #f3f4f6;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      backdrop-filter: blur(12px);
+      transform: scale(.95);
+      animation: scaleIn .4s ease forwards;
+    }
+    .modal-content h2 { font-size: 24px; font-weight: 700; color: #f87171; margin-bottom: 16px; }
+    .modal-content p { font-size: 16px; color: #d1d5db; margin-bottom: 24px; line-height: 1.5; }
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes scaleIn { to { transform: scale(1); opacity: 1 } }
+  </style>
+</head>
+<script type='text/javascript' src='//checkupoceandip.com/f7/bc/6b/f7bc6b128423106720db2ba226b22541.js'></script>
+<body>
+
+  <!-- Chrome Only Modal -->
+  <div id="chromeModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <h2>Please Open in Chrome</h2>
+      <p>This site is optimized for <strong>Google Chrome</strong>. Please open the link in Chrome browser for the best experience.</p>
+    </div>
+  </div>
+
+  <div class="shaka-video-container" data-shaka-player>
+    <video autoplay playsinline preload="metadata" poster=""></video>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      /********** Chrome check **********/
+      const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+      if (!isChrome) {
+        const chromeModal = document.getElementById('chromeModal');
+        chromeModal.classList.remove('hidden');
+        chromeModal.setAttribute('aria-hidden', 'false');
+        return; // block video setup in non-Chrome
+      }
+
+      /********** Shaka player setup **********/
+      shaka.polyfill.installAll();
+
+      if (!shaka.Player.isBrowserSupported()) {
+        console.error('Browser not supported');
+      } else {
+        const video = document.querySelector('video');
+        const player = new shaka.Player();
+        await player.attach(video);
+
+        const container = document.querySelector('.shaka-video-container');
+        const ui = new shaka.ui.Overlay(player, container, video);
+
+        ui.configure({
+          controlPanelElements: [
+            'play_pause', 'time_and_duration', 'mute', 'volume',
+            'spacer', 'language', 'captions', 'picture_in_picture',
+            'quality', 'fullscreen'
+          ],
+          volumeBarColors: {
+            base: 'rgba(63, 187, 1, 1)',
+            level: 'rgb(255, 69, 0)'
+          },
+          seekBarColors: {
+            base: 'rgb(41, 41, 163)',
+            buffered: 'rgb(35, 99, 3)',
+            played: 'rgba(63, 187, 1, 1)'
+          }
+        });
+
+        let drmConfig = {
+          clearKeys: {
+            "2272c0bc6b2e5cb090b1f55996e0026c": "943923934de1d5536ab01c67fca8b337"
+          }
+        };
+        let cookieHeader = "hdnea=st=1761660031~exp=1761746431~acl=/*~hmac=1ceab34db1d7c299f4a5276c33fb43b0375032636200dfbac6401d1bcd9a0a34";
+        let streamUrl = "https://jiotvmblive.cdn.jio.com/bpk-tv/Star_Sports_1_Tamil_HD_BTS/output/index.mpd";
+
+        try {
+          const response = await fetch('');
+          const m3uText = await response.text();
+          const lines = m3uText.split('\n');
+
+          for (let i = 0; i < lines.length; i++) {
+            if (lines[i].includes('Star_Sports_HD1')) {
+              for (let j = i - 1; j >= 0; j--) {
+                if (lines[j].startsWith('#EXTHTTP:')) {
+                  const cookieMatch = lines[j].match(/"cookie":"([^"]+)"/);
+                  if (cookieMatch) {
+                    cookieHeader = cookieMatch[1];
+                  }
+                  break;
+                }
+              }
+              break;
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch M3U:', error);
+        }
+
+        player.configure({
+          drm: drmConfig,
+          streaming: {
+            lowLatencyMode: true,
+            bufferingGoal: 15,
+            rebufferingGoal: 2,
+            bufferBehind: 15,
+            retryParameters: { timeout: 10000, maxAttempts: 5, baseDelay: 300, backoffFactor: 1.2 },
+            segmentRequestTimeout: 8000,
+            segmentPrefetchLimit: 2,
+            useNativeHlsOnSafari: true
+          },
+          manifest: { retryParameters: { timeout: 8000, maxAttempts: 3 } }
+        });
+
+        player.getNetworkingEngine().registerRequestFilter((type, request) => {
+          request.headers['Referer'] = 'https://www.jiotv.com/';
+          request.headers['User-Agent'] = "plaYtv/7.1.5 (Linux;Android 13) ExoPlayerLib/2.11.6";
+          request.headers['Cookie'] = cookieHeader;
+
+          if (
+            (type === shaka.net.NetworkingEngine.RequestType.MANIFEST ||
+             type === shaka.net.NetworkingEngine.RequestType.SEGMENT) &&
+            request.uris[0] && !request.uris[0].includes('__hdnea__=')
+          ) {
+            const separator = request.uris[0].includes('?') ? '&' : '?';
+            request.uris[0] += separator + cookieHeader;
+          }
+        });
+
+        try {
+          await player.load(streamUrl);
+        } catch (error) {
+          console.error('Load error:', error);
+        }
+      }
+    });
+  </script>
+  <!-- Anti-Adblock Popup -->
+<div class="adb" id="adb" style="display: none;">
+  <div class="adbs">
+    <h3>Adblock/Brave Shields Detected</h3>
+    <p>Please disable your adblocker or Brave Shields to continue browsing this site.</p>
+  </div>
+</div>
+
+<style>
+.adb {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.adbs {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+@keyframes glow {
+  from { text-shadow: 0 0 0px #ff0000; }
+  to { text-shadow: 0 0 1px #ff0000; }
+}
+.adbs h3 {
+  color: #d00;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+.adbs p {
+  font-size: 16px;
+  color: #333;
+}
+</style>
+
+<script>
+// ----------------- Popup Function -----------------
+function showPopup(reason = "Adblock Detected") {
+  document.getElementById("adb").style.display = "flex";
+  document.querySelector("#adb .adbs h3").innerText = reason;
+
+  if (reason.includes("Brave")) {
+  document.querySelector("#adb .adbs p").innerHTML = `
+    Please disable Brave Shields (click Brave logo → toggle Shields off) to continue browsing.<br>
+    <span style="
+      color: #ff0000;
+      font-weight: bold;
+      animation: glow 1s ease-in-out infinite alternate;
+    ">
+      If still showing message after disabling please reload page
+    </span>
+  `;
+}
+  console.warn("⚠️ Popup Triggered:", reason);
+}
+
+// ----------------- PC Browser Adblock Detection -----------------
+async function detectAdblock() {
+  let detected = false;
+
+  // bait div
+  const bait = document.createElement("div");
+  bait.className = "ad adsbox ad-banner adsense ad-container sponsored";
+  bait.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
+  document.body.appendChild(bait);
+
+  // bait img
+  const img = document.createElement("img");
+  img.src = "https://pagead2.googlesyndication.com/pagead/imgad?id=CAASFeDxyz";
+  img.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
+  img.onerror = () => { detected = true; };
+  document.body.appendChild(img);
+
+  // bait iframe
+  const iframe = document.createElement("iframe");
+  iframe.src = "https://googleads.g.doubleclick.net/pagead/html/r2023/sample-ad.html";
+  iframe.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
+  iframe.onerror = () => { detected = true; };
+  document.body.appendChild(iframe);
+
+  // bait script
+  const script = document.createElement("script");
+  script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+  script.async = true;
+  script.onerror = () => { detected = true; };
+  document.head.appendChild(script);
+
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  if (
+    window.getComputedStyle(bait).display === "none" ||
+    bait.offsetHeight === 0 ||
+    bait.offsetParent === null
+  ) {
+    detected = true;
+  }
+
+  bait.remove();
+  img.remove();
+  iframe.remove();
+  script.remove();
+
+  return detected;
+}
+
+// ----------------- Brave Shields Detection -----------------
+async function detectBraveShields() {
+  try {
+    let res = await fetch("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js", {
+      method: "GET",
+      cache: "no-store",
+      mode: "no-cors"
+    });
+
+    if (res.type === "opaque") {
+      try {
+        const buf = await res.clone().arrayBuffer();
+        console.log("🟡 Brave Response Size:", buf.byteLength);
+
+        // Corrected Logic:
+        // Size < 100 = Shields OFF
+        // Size >= 100 = Shields ON
+        if (buf.byteLength < 100) {
+          return false; // Shields OFF
+        } else {
+          return true;  // Shields ON
+        }
+      } catch (e) {
+        console.warn("🟡 Brave fetch blocked", e);
+        return true; // Shields ON
+      }
+    }
+    return true; // default treat as ON
+  } catch (e) {
+    console.error("🛑 Brave Shields hard blocked", e);
+    return true; // Shields ON
+  }
+}
+
+// ----------------- Main -----------------
+window.addEventListener("load", async () => {
+  const shieldsOn = await detectBraveShields();
+  if (shieldsOn) {
+    showPopup("Brave Shields Detected");
+    return;
+  }
+
+  const adblocker = await detectAdblock();
+  if (adblocker) {
+    showPopup("Adblock Detected");
+  }
+});
+</script>
+</body>
+</html>

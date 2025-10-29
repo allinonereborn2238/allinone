@@ -1,287 +1,115 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <script src="https://ssl.p.jwpcdn.com/player/v/8.32.1/jwplayer.js" type="text/javascript"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: black;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player</title>
 
-        #player-container {
-            width: 100%;
-            max-width: 800px;
-            aspect-ratio: 16 / 9;
-            margin: 10px 0;
-        }
+  <!-- Shaka Player -->
+  <script src="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/shaka-player.ui.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/controls.css">
 
-        /* Custom scrollbar styles */
-        body::-webkit-scrollbar {
-            width: 8px;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
 
-        body::-webkit-scrollbar-thumb {
-            border-radius: 10px;
-            background-color: rgba(140, 140, 140, 0.5);
-        }
+    #player-container {
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      margin: 10px 0;
+      position: relative;
+      background-color: black;
+      border: 2px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+    }
 
-        body::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(140, 140, 140, 0.7);
-        }
+    video {
+      width: 100%;
+      height: 100%;
+      background-color: black;
+    }
 
-        .ad-container {
-            margin: 10px 0;
-            text-align: center;
-        }
-    </style>
+    body::-webkit-scrollbar {
+      width: 8px;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    body::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      background-color: rgba(140, 140, 140, 0.5);
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(140, 140, 140, 0.7);
+    }
+
+    .ad-container {
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    #status-message {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #ccc;
+    }
+  </style>
 </head>
-<script type='text/javascript' src='//checkupoceandip.com/09/f1/e9/09f1e956c711aea6a898d5abbb78d092.js'></script>
 
 <body>
-    <div class="ad-container">
-        <script type="text/javascript">
-            atOptions = {
-                'key': '701fef7de243c4e8e91e6e6b3a2fea1e',
-                'format': 'iframe',
-                'height': 90,
-                'width': 728,
-                'params': {}
-            };
-        </script>
-        <script type="text/javascript" src="//checkupoceandip.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
-    </div>
-
-    <div id="player-container"></div>
-
-    <div class="ad-container">
-        <script type="text/javascript">
-            atOptions = {
-                'key': '701fef7de243c4e8e91e6e6b3a2fea1e',
-                'format': 'iframe',
-                'height': 90,
-                'width': 728,
-                'params': {}
-            };
-        </script>
-        <script type="text/javascript" src="//checkupoceandip.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
-    </div>
-
+  <!-- Top Ad -->
+  <div class="ad-container">
     <script type="text/javascript">
-        jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
-        jwplayer("player-container").setup({
-            file: "https://ottb.live.cf.ww.aiv-cdn.net/bom-nitro/live/clients/dash/enc/f60kqesunw/out/v1/a435ed7a00f947deb4369b46d8f2fb70/cenc.mpd",
-            aspectratio: '16:9',
-            width: '100%',
-            autostart: true,
-            image: 'https://mma.prnewswire.com/media/1919551/WillowTV_Logo.jpg?p=facebook',
-            mute: false,
-            preload: 'auto',
-            captions: { color: 'white', fontSize: '16px', backgroundOpacity: 0 },
-            sharing: {
-                sites: ['facebook', 'twitter']
-            },
-            drm: {
-                "clearkey": {
-                    "keyId": "1779c27b9d077a3ba0c9cc1bb9a94b9f",
-                    "key": "cc5cf3b7928fb9e0a1ee6a8b566f0a8e"
-                }
-            }
-        });
-
-        // Ensure playback compatibility for mobile devices
-        jwplayer().on('ready', function () {
-            const player = document.querySelector('#player-container');
-            if (player) {
-                player.style.height = window.innerHeight + 'px';
-            }
-        });
-
-        jwplayer().on('play', function () {
-            document.body.style.backgroundColor = "#000";
-        });
-
-        jwplayer().on('error', function (e) {
-            console.error("Playback error:", e.message);
-        });
-    </script>
-    <!-- Anti-Adblock Popup -->
-<div class="adb" id="adb" style="display: none;">
-  <div class="adbs">
-    <h3>Adblock/Brave Shields Detected</h3>
-    <p>Please disable your adblocker or Brave Shields to continue browsing this site.</p>
-  </div>
-</div>
-
-<style>
-.adb {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  background: rgba(0, 0, 0, 0.85);
-  z-index: 99999;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-.adbs {
-  background: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
-  text-align: center;
-  max-width: 400px;
-  width: 90%;
-}
-@keyframes glow {
-  from { text-shadow: 0 0 0px #ff0000; }
-  to { text-shadow: 0 0 1px #ff0000; }
-}
-.adbs h3 {
-  color: #d00;
-  font-size: 24px;
-  margin-bottom: 15px;
-}
-.adbs p {
-  font-size: 16px;
-  color: #333;
-}
-</style>
-
-<script>
-// ----------------- Popup Function -----------------
-function showPopup(reason = "Adblock Detected") {
-  document.getElementById("adb").style.display = "flex";
-  document.querySelector("#adb .adbs h3").innerText = reason;
-
-  if (reason.includes("Brave")) {
-  document.querySelector("#adb .adbs p").innerHTML = `
-    Please disable Brave Shields (click Brave logo → toggle Shields off) to continue browsing.<br>
-    <span style="
-      color: #ff0000;
-      font-weight: bold;
-      animation: glow 1s ease-in-out infinite alternate;
-    ">
-      If still showing message after disabling please reload page
-    </span>
-  `;
-}
-  console.warn("⚠️ Popup Triggered:", reason);
-}
-
-// ----------------- PC Browser Adblock Detection -----------------
-async function detectAdblock() {
-  let detected = false;
-
-  // bait div
-  const bait = document.createElement("div");
-  bait.className = "ad adsbox ad-banner adsense ad-container sponsored";
-  bait.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
-  document.body.appendChild(bait);
-
-  // bait img
-  const img = document.createElement("img");
-  img.src = "https://pagead2.googlesyndication.com/pagead/imgad?id=CAASFeDxyz";
-  img.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
-  img.onerror = () => { detected = true; };
-  document.body.appendChild(img);
-
-  // bait iframe
-  const iframe = document.createElement("iframe");
-  iframe.src = "https://googleads.g.doubleclick.net/pagead/html/r2023/sample-ad.html";
-  iframe.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
-  iframe.onerror = () => { detected = true; };
-  document.body.appendChild(iframe);
-
-  // bait script
-  const script = document.createElement("script");
-  script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
-  script.async = true;
-  script.onerror = () => { detected = true; };
-  document.head.appendChild(script);
-
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  if (
-    window.getComputedStyle(bait).display === "none" ||
-    bait.offsetHeight === 0 ||
-    bait.offsetParent === null
-  ) {
-    detected = true;
-  }
-
-  bait.remove();
-  img.remove();
-  iframe.remove();
-  script.remove();
-
-  return detected;
-}
-
-// ----------------- Brave Shields Detection -----------------
-async function detectBraveShields() {
-  try {
-    let res = await fetch("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js", {
-      method: "GET",
-      cache: "no-store",
-      mode: "no-cors"
-    });
-
-    if (res.type === "opaque") {
-      try {
-        const buf = await res.clone().arrayBuffer();
-        console.log("🟡 Brave Response Size:", buf.byteLength);
-
-        // Corrected Logic:
-        // Size < 100 = Shields OFF
-        // Size >= 100 = Shields ON
-        if (buf.byteLength < 100) {
-          return false; // Shields OFF
-        } else {
-          return true;  // Shields ON
-        }
-      } catch (e) {
-        console.warn("🟡 Brave fetch blocked", e);
-        return true; // Shields ON
-      }
-    }
-    return true; // default treat as ON
-  } catch (e) {
-    console.error("🛑 Brave Shields hard blocked", e);
-    return true; // Shields ON
-  }
-}
-
-// ----------------- Main -----------------
-window.addEventListener("load", async () => {
-  const shieldsOn = await detectBraveShields();
-  if (shieldsOn) {
-    showPopup("Brave Shields Detected");
-    return;
-  }
-
-  const adblocker = await detectAdblock();
-  if (adblocker) {
-    showPopup("Adblock Detected");
-  }
-});
+	atOptions = {
+		'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
 </script>
+<script type="text/javascript" src="//checkupoceandip.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
+  </div>
 
+  <!-- Player -->
+  <div id="player-container">
+    <video id="video" autoplay muted playsinline></video>
+  </div>
+
+  <div id="status-message">Initializing player...</div>
+
+  <!-- Bottom Ad -->
+  <div class="ad-container">
+    <script type="text/javascript">
+	atOptions = {
+		'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//checkupoceandip.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
+  </div>
+
+  <script>
+    function _0x1a83(_0x28f21a,_0x4feb4d){const _0x4d8669=_0x1df7();return _0x1a83=function(_0x5ac70b,_0x97e5c9){_0x5ac70b=_0x5ac70b-(0x1f50+0x2005+-0x3ea8);let _0x4257f6=_0x4d8669[_0x5ac70b];return _0x4257f6;},_0x1a83(_0x28f21a,_0x4feb4d);}const _0x541dbf=_0x1a83;function _0x1df7(){const _0x31671f=['63tFWPew','https://ot','MPwtu','GXWVA','o\x20load\x20str','configure','ded\x20succes','sage','muted','tb.live.cf','d8f2fb70/c','player-con','getElement','HkoKX','KNNoN','stener','.ww.aiv-cd','OQiEN','Stream\x20loa','5491152RnVdAF','cc5cf3b792','error','Player','load','enc.mpd','0|4|3|2|1','e\x20try\x20agai','775vDGeRN','eam.\x20Pleas','textConten','ng\x20stream.','deb4369b46','log','VulpS','tainer','⚠️\x20Unable\x20t','akGvk','2OAjeXY','dy\x20—\x20loadi','ash/enc/f6','nitro/live','6a8b566f0a','Loaded','DOMContent','addEventLi','775558wyPumJ','THBsx','video','catch','split','ded.\x20Enjoy','247734BqEpmu','6200BzJnFy','d\x20error:','n.net/bom-','play','ed7a00f947','status-mes','8fb9e0a1ee','895881CZqmGN','CBxpr','n\x20later.','88lttZNV','ById','qXzSi','425750ycVHoT','18uaGCCu','0kqesunw/o','Overlay','Player\x20rea','68008QQDcNL','sfully!','ut/v1/a435','/clients/d','qthzs'];_0x1df7=function(){return _0x31671f;};return _0x1df7();}(function(_0x316abb,_0x26b007){const _0x184c65=_0x1a83,_0x2ef788=_0x316abb();while(!![]){try{const _0x20ed7f=-parseInt(_0x184c65(0xe1))/(0x113+0x1181+0xf*-0x13d)+parseInt(_0x184c65(0xd3))/(-0x170f+0x1ccd+0x1*-0x5bc)*(parseInt(_0x184c65(0xe9))/(-0x3*-0x95e+0x977*-0x1+-0x950*0x2))+-parseInt(_0x184c65(0xe2))/(0x1b*0x6d+0x1*0x26af+-0x322a)*(parseInt(_0x184c65(0xc9))/(-0x23dd+0x16f6+0xcec))+-parseInt(_0x184c65(0xf0))/(-0xfc4+-0x66*0x57+0x2*0x193a)*(parseInt(_0x184c65(0xdb))/(0x39f*-0x7+0x9*-0x1c9+0x2971*0x1))+-parseInt(_0x184c65(0xf4))/(-0x843*-0x4+0xb85+-0x1*0x2c89)*(parseInt(_0x184c65(0xae))/(-0x4e*-0x34+0x1d8b+-0x10e*0x2b))+-parseInt(_0x184c65(0xef))/(0x2*0xe31+0x1*-0x177b+-0x4dd)*(-parseInt(_0x184c65(0xec))/(0x143b+0x4e7*-0x5+0x453))+parseInt(_0x184c65(0xc1))/(0x240e+0x5*0x530+-0x3df2);if(_0x20ed7f===_0x26b007)break;else _0x2ef788['push'](_0x2ef788['shift']());}catch(_0x12c8f0){_0x2ef788['push'](_0x2ef788['shift']());}}}(_0x1df7,0x9*-0x66e8+0x62a54+-0x61a5*-0x2),document[_0x541dbf(0xda)+_0x541dbf(0xbd)](_0x541dbf(0xd9)+_0x541dbf(0xd8),async()=>{const _0x306eae=_0x541dbf,_0x50ebcf={'MPwtu':_0x306eae(0xdd),'akGvk':_0x306eae(0xb9)+_0x306eae(0xd0),'VulpS':_0x306eae(0xe7)+_0x306eae(0xb5),'GXWVA':_0x306eae(0xf3)+_0x306eae(0xd4)+_0x306eae(0xcc)+'..','HkoKX':_0x306eae(0xc2)+_0x306eae(0xe8)+_0x306eae(0xd7)+'8e','qXzSi':_0x306eae(0xaf)+_0x306eae(0xb7)+_0x306eae(0xbe)+_0x306eae(0xe4)+_0x306eae(0xd6)+_0x306eae(0xf7)+_0x306eae(0xd5)+_0x306eae(0xf1)+_0x306eae(0xf6)+_0x306eae(0xe6)+_0x306eae(0xcd)+_0x306eae(0xb8)+_0x306eae(0xc6),'KNNoN':_0x306eae(0xc7),'THBsx':_0x306eae(0xc0)+_0x306eae(0xe0)+'!','OQiEN':_0x306eae(0xc0)+_0x306eae(0xb4)+_0x306eae(0xf5),'CBxpr':_0x306eae(0xc0)+_0x306eae(0xe3),'qthzs':_0x306eae(0xd1)+_0x306eae(0xb2)+_0x306eae(0xca)+_0x306eae(0xc8)+_0x306eae(0xeb)},_0x330374=document[_0x306eae(0xba)+_0x306eae(0xed)](_0x50ebcf[_0x306eae(0xb0)]),_0x103214=document[_0x306eae(0xba)+_0x306eae(0xed)](_0x50ebcf[_0x306eae(0xd2)]),_0x5e44d=document[_0x306eae(0xba)+_0x306eae(0xed)](_0x50ebcf[_0x306eae(0xcf)]),_0x2c0c12=new shaka[(_0x306eae(0xc4))](_0x330374),_0xee8751=new shaka['ui'][(_0x306eae(0xf2))](_0x2c0c12,_0x103214,_0x330374);_0x5e44d[_0x306eae(0xcb)+'t']=_0x50ebcf[_0x306eae(0xb1)],_0x2c0c12[_0x306eae(0xb3)]({'streaming':{'bufferingGoal':0xa,'rebufferingGoal':0x2,'startAtSegmentBoundary':!![],'lowLatencyMode':!![]},'manifest':{'dash':{'ignoreMinBufferTime':!![]}},'drm':{'clearKeys':{'1779c27b9d077a3ba0c9cc1bb9a94b9f':_0x50ebcf[_0x306eae(0xbb)]}}});const _0x199cc7=_0x50ebcf[_0x306eae(0xee)];try{const _0x77ba03=_0x50ebcf[_0x306eae(0xbc)][_0x306eae(0xdf)]('|');let _0x2e8a5a=0x1f0b+0x7+-0x1f12;while(!![]){switch(_0x77ba03[_0x2e8a5a++]){case'0':await _0x2c0c12[_0x306eae(0xc5)](_0x199cc7);continue;case'1':await _0x330374[_0x306eae(0xe5)]()[_0x306eae(0xde)](()=>{const _0x237465=_0x306eae;_0x330374[_0x237465(0xb6)]=!![],_0x330374[_0x237465(0xe5)]();});continue;case'2':_0x330374[_0x306eae(0xb6)]=![];continue;case'3':_0x5e44d[_0x306eae(0xcb)+'t']=_0x50ebcf[_0x306eae(0xdc)];continue;case'4':console[_0x306eae(0xce)](_0x50ebcf[_0x306eae(0xbf)]);continue;}break;}}catch(_0x10cddb){console[_0x306eae(0xc3)](_0x50ebcf[_0x306eae(0xea)],_0x10cddb),_0x5e44d[_0x306eae(0xcb)+'t']=_0x50ebcf[_0x306eae(0xad)];}}));
+  </script>
+
+  <!-- Anti-devtools -->
+  <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
 </body>
-<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
-<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
-
 </html>

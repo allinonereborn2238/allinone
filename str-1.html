@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@allinone_reborn</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .ad-container {
+            width: 100%;
+            max-width: 728px;
+            height: auto;
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+  <script type='text/javascript' src='//eltontry.com/c6/f4/a4/c6f4a40ccb5bf8d58015e6944241f8af.js'></script>
+<body>
+    <!-- Pre-iframe Script -->
+    <script>
+        // You can add custom logic here, e.g., tracking or preloading.
+        console.log("Pre-iframe script executed.");
+    </script>
+
+    <!-- Top Ad -->
+    <div class="ad-container">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '606e9b2600d90b868cc5baa3430c4328',
+          'format' : 'iframe',
+          'height' : 90,
+          'width' : 728,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//eltontry.com/606e9b2600d90b868cc5baa3430c4328/invoke.js"></script>
+    </div>
+
+    <!-- Centered Iframe -->
+    <script>
+        (function() {
+            var iframe = document.createElement("iframe");
+            iframe.src = "https://vimeo.com/event/5483319/embed";
+            iframe.allowFullscreen = true;
+            iframe.style.width = "90%";
+            iframe.style.maxWidth = "700px";
+            iframe.style.height = "50%";
+            iframe.style.maxHeight = "400px";
+            iframe.style.border = "none";
+
+            var container = document.body || document.documentElement;
+            container.appendChild(iframe);
+        })();
+    </script>
+
+    <!-- Bottom Ad -->
+    <div class="ad-container">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '606e9b2600d90b868cc5baa3430c4328',
+          'format' : 'iframe',
+          'height' : 90,
+          'width' : 728,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//eltontry.com/606e9b2600d90b868cc5baa3430c4328/invoke.js"></script>
+    </div>
+  <!-- Anti-Adblock Popup -->
+  <div class="adb" id="adb" style="display: none;">
+      <div class="adbs">
+          <h3>Adblock Detected</h3>
+          <p>Please disable adblock to proceed to the destination page</p>
+      </div>
+  </div>
+
+  <style>
+      .adb {
+          display: none;
+          position: fixed;
+          width: 100%;
+          height: 100%;
+          left: 0;
+          top: 0;
+          background: rgba(51, 51, 51, 0.9);
+          z-index: 10000;
+          text-align: center;
+          color: #111;
+      }
+
+      .adbs {
+          margin: 0 auto;
+          width: auto;
+          min-width: 400px;
+          position: fixed;
+          z-index: 99999;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          padding: 20px 30px 30px;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 12px;
+      }
+  </style>
+
+  <script type="text/javascript">
+      async function detectAdBlock() {
+          let adBlockEnabled = false;
+          const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+
+          try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+
+              await fetch(new Request(googleAdUrl), { signal: controller.signal })
+                  .then(() => clearTimeout(timeoutId))
+                  .catch(error => {
+                      if (error.name === 'AbortError') return; // Ignore timeout errors
+                      adBlockEnabled = true;
+                  });
+
+          } catch (e) {
+              adBlockEnabled = true;
+          }
+
+          if (adBlockEnabled) {
+              document.getElementById("adb").style.display = "block";
+          }
+      }
+
+      detectAdBlock();
+  </script>
+</body>
+  <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+  <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+  <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+  <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+
+</html>

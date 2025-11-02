@@ -2,120 +2,114 @@
 <html lang="en">
 
 <head>
-    <script src="https://ssl.p.jwpcdn.com/player/v/8.32.1/jwplayer.js" type="text/javascript"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: black;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player</title>
 
-        #player-container {
-            width: 100%;
-            max-width: 800px;
-            aspect-ratio: 16 / 9;
-            margin: 10px 0;
-        }
+  <!-- Shaka Player -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.ui.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/controls.min.css" crossorigin="anonymous">
 
-        /* Custom scrollbar styles */
-        body::-webkit-scrollbar {
-            width: 8px;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
 
-        body::-webkit-scrollbar-thumb {
-            border-radius: 10px;
-            background-color: rgba(140, 140, 140, 0.5);
-        }
+    #player-container {
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      margin: 10px 0;
+      position: relative;
+      background-color: black;
+      border: 2px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+    }
 
-        body::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(140, 140, 140, 0.7);
-        }
+    video {
+      width: 100%;
+      height: 100%;
+      background-color: black;
+    }
 
-        .ad-container {
-            margin: 10px 0;
-            text-align: center;
-        }
-    </style>
+    body::-webkit-scrollbar {
+      width: 8px;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    body::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      background-color: rgba(140, 140, 140, 0.5);
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(140, 140, 140, 0.7);
+    }
+
+    .ad-container {
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    #status-message {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #ccc;
+    }
+  </style>
 </head>
 <script type='text/javascript' src='//checkupoceandip.com/09/f1/e9/09f1e956c711aea6a898d5abbb78d092.js'></script>
 
 <body>
-    <div class="ad-container">
-        <script type="text/javascript">
-            atOptions = {
-                'key': '701fef7de243c4e8e91e6e6b3a2fea1e',
-                'format': 'iframe',
-                'height': 90,
-                'width': 728,
-                'params': {}
-            };
-        </script>
-        <script type="text/javascript" src="//checkupoceandip.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
-    </div>
-
-    <div id="player-container"></div>
-
-    <div class="ad-container">
-        <script type="text/javascript">
-            atOptions = {
-                'key': '701fef7de243c4e8e91e6e6b3a2fea1e',
-                'format': 'iframe',
-                'height': 90,
-                'width': 728,
-                'params': {}
-            };
-        </script>
-        <script type="text/javascript" src="//checkupoceandip.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
-    </div>
-
+  <!-- Top Ad -->
+  <div class="ad-container">
     <script type="text/javascript">
-        jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
-        jwplayer("player-container").setup({
-            file: "https://abag274aaaaaaaamdq2aq6fjfyx7j.otte.live.cf.ww.aiv-cdn.net/syd-nitro/live/clients/dash/enc/x8vrnhdamc/out/v1/d192f85e3c08487b8b8c8760bd4c981c/cenc.mpd",
-            aspectratio: '16:9',
-            width: '100%',
-            autostart: true,
-            image: 'https://mma.prnewswire.com/media/1919551/WillowTV_Logo.jpg?p=facebook',
-            mute: false,
-            preload: 'auto',
-            captions: { color: 'white', fontSize: '16px', backgroundOpacity: 0 },
-            sharing: {
-                sites: ['facebook', 'twitter']
-            },
-            drm: {
-                "clearkey": {
-                    "keyId": "81fafe29255223fc7beeae1a8c756f8b",
-                    "key": "f24da67523e54d430d5811eafe6f4300"
-                }
-            }
-        });
+	atOptions = {
+		'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//checkupoceandip.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
+  </div>
 
-        // Ensure playback compatibility for mobile devices
-        jwplayer().on('ready', function () {
-            const player = document.querySelector('#player-container');
-            if (player) {
-                player.style.height = window.innerHeight + 'px';
-            }
-        });
+  <!-- Player -->
+  <div id="player-container">
+    <video id="video" autoplay muted playsinline></video>
+  </div>
 
-        jwplayer().on('play', function () {
-            document.body.style.backgroundColor = "#000";
-        });
+  <div id="status-message">Initializing player...</div>
 
-        jwplayer().on('error', function (e) {
-            console.error("Playback error:", e.message);
-        });
-    </script>
-<!-- Anti-Adblock Popup -->
+  <!-- Bottom Ad -->
+  <div class="ad-container">
+    <script type="text/javascript">
+	atOptions = {
+		'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//checkupoceandip.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
+  </div>
+
+  <script>
+    const _0x4fab85=_0x20ee;function _0x20ee(_0x55ed7d,_0x4e334a){const _0x2957a1=_0x1998();return _0x20ee=function(_0x3626d7,_0x19728c){_0x3626d7=_0x3626d7-(-0x21e9+0x226a+-0x1*-0xff);let _0x3cc16c=_0x2957a1[_0x3626d7];return _0x3cc16c;},_0x20ee(_0x55ed7d,_0x4e334a);}function _0x1998(){const _0x2ba5ff=['/dash/enc/','e\x20try\x20agai','tb.live.cf','/cenc.mpd','ded.\x20Enjoy','1370772hLqoBw','ded\x20succes','10956pZzKxi','572bc0851f','eam.\x20Pleas','RHFnz','ng\x20stream.','2754774SAdiSa','486ea7e8e3','o\x20load\x20str','ff5c6c0ikd','Player','error','stener','3e20fb8221','split','eWcEi','724puDgsl','4f03e5e81d','getElement','load','configure','Stream\x20loa','muted','video','ById','⚠️\x20Unable\x20t','catch','nitro/live','dABfB','dy\x20—\x20loadi','player-con','758445NjhsrG','3|4|1|0|2','VHnKc','daVXM','fhHjm','/out/v1/d7','mMKHJ','15qlwRpa','status-mes','.ww.aiv-cd','play','eb45f0522f','addEventLi','tainer','kRrMg','WfHZE','JIfVJ','Player\x20rea','n.net/sin-','953925vHkpYJ','Loaded','130f460d41','n\x20later.','8osxtlX','Overlay','338132aDBDph','1021UoXlav','d\x20error:','8430BwxKBv','sage','DOMContent','https://ot','Sjpms','sfully!','log','textConten'];_0x1998=function(){return _0x2ba5ff;};return _0x1998();}(function(_0x13e3b1,_0x14a51c){const _0x1ad4b4=_0x20ee,_0x402a65=_0x13e3b1();while(!![]){try{const _0x59b94d=parseInt(_0x1ad4b4(0x19c))/(-0x16a5*0x1+-0xf99+-0x1*-0x263f)*(parseInt(_0x1ad4b4(0x1bc))/(0x1cf4*-0x1+0x3c*-0xc+0x1fc6))+-parseInt(_0x1ad4b4(0x182))/(0x20e4+0x95+-0x2176)+parseInt(_0x1ad4b4(0x19b))/(0x23e7+0x13f3+-0x37d6)*(parseInt(_0x1ad4b4(0x189))/(0xe*0x1f6+0x21b4+-0x6f*0x8d))+parseInt(_0x1ad4b4(0x1ab))/(0x1514+-0x3cd*0x3+0x1*-0x9a7)+-parseInt(_0x1ad4b4(0x195))/(-0x1*-0x5cf+-0x125+0x4a3*-0x1)*(-parseInt(_0x1ad4b4(0x199))/(-0x203+-0x21b*0x1+0x426))+parseInt(_0x1ad4b4(0x1b2))/(0x21*-0x5b+-0x43+-0x1*-0xc07)+-parseInt(_0x1ad4b4(0x19e))/(-0x1a79+-0x5d5*0x5+0x7*0x7f4)*(parseInt(_0x1ad4b4(0x1ad))/(-0xa*-0x345+-0x166d+0xbb*-0xe));if(_0x59b94d===_0x14a51c)break;else _0x402a65['push'](_0x402a65['shift']());}catch(_0xf177af){_0x402a65['push'](_0x402a65['shift']());}}}(_0x1998,-0x2*0x207eb+-0x47a9b+0x3de*0x301),document[_0x4fab85(0x18e)+_0x4fab85(0x1b8)](_0x4fab85(0x1a0)+_0x4fab85(0x196),async()=>{const _0xd303=_0x4fab85,_0x2cc248={'VHnKc':_0xd303(0x1c3),'fhHjm':_0xd303(0x181)+_0xd303(0x18f),'WfHZE':_0xd303(0x18a)+_0xd303(0x19f),'kRrMg':_0xd303(0x193)+_0xd303(0x180)+_0xd303(0x1b1)+'..','JIfVJ':_0xd303(0x1bd)+_0xd303(0x1b9)+_0xd303(0x1ae)+'3b','Sjpms':_0xd303(0x1a1)+_0xd303(0x1a8)+_0xd303(0x18b)+_0xd303(0x194)+_0xd303(0x1c7)+_0xd303(0x1a6)+_0xd303(0x1b5)+_0xd303(0x187)+_0xd303(0x197)+_0xd303(0x1b3)+_0xd303(0x18d)+_0xd303(0x1a9),'daVXM':_0xd303(0x183),'mMKHJ':_0xd303(0x1c1)+_0xd303(0x1aa)+'!','eWcEi':_0xd303(0x1c1)+_0xd303(0x1ac)+_0xd303(0x1a3),'dABfB':_0xd303(0x1c1)+_0xd303(0x19d),'RHFnz':_0xd303(0x1c5)+_0xd303(0x1b4)+_0xd303(0x1af)+_0xd303(0x1a7)+_0xd303(0x198)},_0x223935=document[_0xd303(0x1be)+_0xd303(0x1c4)](_0x2cc248[_0xd303(0x184)]),_0x47f904=document[_0xd303(0x1be)+_0xd303(0x1c4)](_0x2cc248[_0xd303(0x186)]),_0x557570=document[_0xd303(0x1be)+_0xd303(0x1c4)](_0x2cc248[_0xd303(0x191)]),_0x4da56f=new shaka[(_0xd303(0x1b6))](_0x223935),_0x88902b=new shaka['ui'][(_0xd303(0x19a))](_0x4da56f,_0x47f904,_0x223935);_0x557570[_0xd303(0x1a5)+'t']=_0x2cc248[_0xd303(0x190)],_0x4da56f[_0xd303(0x1c0)]({'streaming':{'bufferingGoal':0xa,'rebufferingGoal':0x2,'startAtSegmentBoundary':!![],'lowLatencyMode':!![]},'manifest':{'dash':{'ignoreMinBufferTime':!![]}},'drm':{'clearKeys':{'f23971fb49d8a31a105b31f8107c26cf':_0x2cc248[_0xd303(0x192)]}}});const _0x341e4a=_0x2cc248[_0xd303(0x1a2)];try{const _0x172d5a=_0x2cc248[_0xd303(0x185)][_0xd303(0x1ba)]('|');let _0x16c3d0=-0x176*0x12+-0x2bd*0xb+0x1*0x386b;while(!![]){switch(_0x172d5a[_0x16c3d0++]){case'0':_0x223935[_0xd303(0x1c2)]=![];continue;case'1':_0x557570[_0xd303(0x1a5)+'t']=_0x2cc248[_0xd303(0x188)];continue;case'2':await _0x223935[_0xd303(0x18c)]()[_0xd303(0x1c6)](()=>{const _0xfa7c28=_0xd303;_0x223935[_0xfa7c28(0x1c2)]=!![],_0x223935[_0xfa7c28(0x18c)]();});continue;case'3':await _0x4da56f[_0xd303(0x1bf)](_0x341e4a);continue;case'4':console[_0xd303(0x1a4)](_0x2cc248[_0xd303(0x1bb)]);continue;}break;}}catch(_0x1964c7){console[_0xd303(0x1b7)](_0x2cc248[_0xd303(0x1c8)],_0x1964c7),_0x557570[_0xd303(0x1a5)+'t']=_0x2cc248[_0xd303(0x1b0)];}}));
+  </script>
+  <!-- Anti-Adblock Popup -->
 <div class="adb" id="adb" style="display: none;">
   <div class="adbs">
     <h3>Adblock/Brave Shields Detected</h3>
@@ -284,3 +278,5 @@ window.addEventListener("load", async () => {
 <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
 
 </html>
+
+  

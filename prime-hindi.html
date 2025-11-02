@@ -1,192 +1,282 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-  <title>Live Stream</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player</title>
 
-  <!-- JW Player + HLS -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="https://content.jwplatform.com/libraries/SAHhwvZq.js"></script>
+  <!-- Shaka Player -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.ui.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/controls.min.css" crossorigin="anonymous">
 
   <style>
-    html, body {
+    body {
       margin: 0;
       padding: 0;
-      background: #000;
-      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    #player-container {
       width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      margin: 10px 0;
+      position: relative;
+      background-color: black;
+      border: 2px solid #333;
+      border-radius: 8px;
       overflow: hidden;
     }
 
-    #player-wrapper {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #video-player {
+    video {
       width: 100%;
       height: 100%;
-      max-width: 100vw;
-      max-height: 100vh;
+      background-color: black;
     }
 
-    #loading-overlay,
-    #error-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.85);
-      color: #fff;
-      z-index: 9999;
+    body::-webkit-scrollbar {
+      width: 8px;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    body::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      background-color: rgba(140, 140, 140, 0.5);
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(140, 140, 140, 0.7);
+    }
+
+    .ad-container {
+      margin: 10px 0;
       text-align: center;
-      padding: 20px;
-      box-sizing: border-box;
     }
 
-    .loading-spinner {
-      border: 4px solid rgba(255, 255, 255, 0.2);
-      border-top: 4px solid #fff;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    button {
-      background: #007bff;
-      border: none;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
+    #status-message {
+      margin-top: 10px;
       font-size: 16px;
-    }
-
-    button:hover {
-      background: #0056b3;
-    }
-
-    /* Mobile adjustments */
-    @media (max-width: 768px) {
-      .loading-spinner {
-        width: 40px;
-        height: 40px;
-      }
-      button {
-        font-size: 14px;
-        padding: 8px 16px;
-      }
+      color: #ccc;
     }
   </style>
 </head>
+<script type='text/javascript' src='//checkupoceandip.com/09/f1/e9/09f1e956c711aea6a898d5abbb78d092.js'></script>
+
 <body>
-  <div id="player-wrapper">
-    <div id="video-player"></div>
+  <!-- Top Ad -->
+  <div class="ad-container">
+    <script type="text/javascript">
+	atOptions = {
+		'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//checkupoceandip.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
   </div>
 
-  <div id="loading-overlay">
-    <div class="loading-spinner"></div>
-    <p>Loading stream...</p>
+  <!-- Player -->
+  <div id="player-container">
+    <video id="video" autoplay muted playsinline></video>
   </div>
 
-  <div id="error-overlay" style="display: none;">
-    <h3>Stream Error</h3>
-    <p id="error-message">Unable to load the stream. Please try again later.</p>
-    <button id="retry-btn">Retry</button>
+  <div id="status-message">Initializing player...</div>
+
+  <!-- Bottom Ad -->
+  <div class="ad-container">
+    <script type="text/javascript">
+	atOptions = {
+		'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//checkupoceandip.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
   </div>
 
   <script>
-    // Stream configuration
-    const channelData = {
-      name: "Prime (India W vs Pak W)",
-      streamType: "mpd",
-      streamUrl: "https://abbbmftaaaaaaaamgdshloqn26zka.otte.live.cf.ww.aiv-cdn.net/sin-nitro/live/dash/enc/jr0zvtazlv/out/v1/6bae9634f7594a738530656284177423/cenc.mpd",
-      drmKey: "2ce2e7d0af813fd26c6fe0b59201ced5",
-      drmKeyId: "1416f69da90f62735a6521aae461dd74",
-      licenseUrl: ""
-    };
-
-    let playerInstance = null;
-
-    function initializePlayer() {
-      const loadingOverlay = document.getElementById('loading-overlay');
-      const errorOverlay = document.getElementById('error-overlay');
-
-      let fileType = (channelData.streamType === 'mpd') ? 'dash' : 'hls';
-      let sources = [];
-
-      // Build source with ClearKey DRM if available
-      sources.push({
-        file: channelData.streamUrl,
-        drm: {
-          clearkey: {
-            keyId: channelData.drmKeyId,
-            key: channelData.drmKey
-          }
-        }
-      });
-
-      const playerConfig = {
-        type: fileType,
-        width: "100%",
-        height: "100%",
-        autostart: true,
-        controls: true,
-        stretching: "uniform",
-        responsive: true,
-        playlist: [{ sources }]
-      };
-
-      playerInstance = jwplayer("video-player").setup(playerConfig);
-
-      playerInstance.on("ready", hideLoading);
-      playerInstance.on("error", (err) => showError("Player Error: " + (err.message || "Unknown error")));
-      playerInstance.on("setupError", (err) => showError("Setup Error: " + (err.message || "Initialization failed")));
-    }
-
-    function hideLoading() {
-      document.getElementById("loading-overlay").style.display = "none";
-    }
-
-    function showError(message) {
-      document.getElementById("loading-overlay").style.display = "none";
-      document.getElementById("error-message").textContent = message;
-      document.getElementById("error-overlay").style.display = "flex";
-    }
-
-    document.getElementById("retry-btn").addEventListener("click", () => {
-      document.getElementById("error-overlay").style.display = "none";
-      document.getElementById("loading-overlay").style.display = "flex";
-      if (playerInstance) playerInstance.remove();
-      initializePlayer();
-    });
-
-    // Initialize when ready
-    document.addEventListener("DOMContentLoaded", initializePlayer);
-
-    window.addEventListener("beforeunload", () => {
-      if (playerInstance) playerInstance.remove();
-    });
+    function _0xeb8d(){const _0xae5466=['sEeBw','configure','DnNFh','zHPwV','log','1sflwpF','tb.live.cf','status-mes','1197590JLxtcr','1518NvrhRp','857bfaea3e','VcLFo','d\x20error:','7173bc3c63','aRgxB','2|1|0|3|4','OsxeP','/out/v1/2f','getElement','tainer','24CoatCP','2678931YXsCDm','o\x20load\x20str','textConten','/dash/enc/','PflrB','d0b71ed290','ce3749cabf','n.net/sin-','stener','sage','Player\x20rea','dzaSw','11741920QjUWzi','player-con','sfully!','split','Loaded','mIfUh','error','video','4a09b2e101','dy\x20—\x20loadi','2937916yktnvi','2344464Cqzpqj','30a0bcdbc6','addEventLi','DOMContent','/cenc.mpd','Overlay','Player','muted','xIziN','ng\x20stream.','4401669ZLdLNP','ded.\x20Enjoy','e\x20try\x20agai','nitro/live','7028NhbKec','bvNJg','Stream\x20loa','catch','ById','⚠️\x20Unable\x20t','.ww.aiv-cd','load','https://ot','eam.\x20Pleas','feh5lmnfkl','ded\x20succes','play','n\x20later.'];_0xeb8d=function(){return _0xae5466;};return _0xeb8d();}const _0x4ea42c=_0x3c83;function _0x3c83(_0x505566,_0x470578){const _0x584089=_0xeb8d();return _0x3c83=function(_0x30345a,_0x2696c){_0x30345a=_0x30345a-(-0x1d20+-0x1*0x5bf+0x236f);let _0x585576=_0x584089[_0x30345a];return _0x585576;},_0x3c83(_0x505566,_0x470578);}(function(_0x1aa3c4,_0x3bb21b){const _0x494c9d=_0x3c83,_0x4a54ca=_0x1aa3c4();while(!![]){try{const _0x34ed3d=-parseInt(_0x494c9d(0xb6))/(0x1*-0xb8+-0x2d2+0x38b)*(-parseInt(_0x494c9d(0x94))/(-0x12f1+-0x155d+0x2850))+parseInt(_0x494c9d(0x9f))/(-0xa4+-0x1*-0x9af+-0x908)+-parseInt(_0x494c9d(0x95))/(-0x14fe+0x1d0b+-0x809)+parseInt(_0x494c9d(0xb9))/(-0x1d95*-0x1+0x215*0xa+-0x3262)+parseInt(_0x494c9d(0xba))/(0x213b+0x8ec+0x86d*-0x5)*(parseInt(_0x494c9d(0xa3))/(-0x61*0x31+0xc4c+0x64c))+parseInt(_0x494c9d(0xc5))/(-0x2674+0x1c08+0xa74)*(-parseInt(_0x494c9d(0xc6))/(0x1*0xb6b+-0x5bf+0x3*-0x1e1))+-parseInt(_0x494c9d(0xd2))/(-0x3cd*0x5+-0xb*0xbe+0x1b35);if(_0x34ed3d===_0x3bb21b)break;else _0x4a54ca['push'](_0x4a54ca['shift']());}catch(_0x168846){_0x4a54ca['push'](_0x4a54ca['shift']());}}}(_0xeb8d,-0x12282e+0xb*0x13ed3+0x104e07),document[_0x4ea42c(0x97)+_0x4ea42c(0xce)](_0x4ea42c(0x98)+_0x4ea42c(0xd6),async()=>{const _0x2d6cb8=_0x4ea42c,_0x26a777={'mIfUh':_0x2d6cb8(0x91),'PflrB':_0x2d6cb8(0xd3)+_0x2d6cb8(0xc4),'DnNFh':_0x2d6cb8(0xb8)+_0x2d6cb8(0xcf),'bvNJg':_0x2d6cb8(0xd0)+_0x2d6cb8(0x93)+_0x2d6cb8(0x9e)+'..','xIziN':_0x2d6cb8(0xbb)+_0x2d6cb8(0xbe)+_0x2d6cb8(0xcc)+'cf','aRgxB':_0x2d6cb8(0xab)+_0x2d6cb8(0xb7)+_0x2d6cb8(0xa9)+_0x2d6cb8(0xcd)+_0x2d6cb8(0xa2)+_0x2d6cb8(0xc9)+_0x2d6cb8(0xad)+_0x2d6cb8(0xc2)+_0x2d6cb8(0x96)+_0x2d6cb8(0x92)+_0x2d6cb8(0xcb)+_0x2d6cb8(0x99),'VcLFo':_0x2d6cb8(0xc0),'OsxeP':_0x2d6cb8(0xa5)+_0x2d6cb8(0xa0)+'!','sEeBw':_0x2d6cb8(0xa5)+_0x2d6cb8(0xae)+_0x2d6cb8(0xd4),'zHPwV':_0x2d6cb8(0xa5)+_0x2d6cb8(0xbd),'dzaSw':_0x2d6cb8(0xa8)+_0x2d6cb8(0xc7)+_0x2d6cb8(0xac)+_0x2d6cb8(0xa1)+_0x2d6cb8(0xb0)},_0x3d3450=document[_0x2d6cb8(0xc3)+_0x2d6cb8(0xa7)](_0x26a777[_0x2d6cb8(0xd7)]),_0x15d576=document[_0x2d6cb8(0xc3)+_0x2d6cb8(0xa7)](_0x26a777[_0x2d6cb8(0xca)]),_0x56c6f0=document[_0x2d6cb8(0xc3)+_0x2d6cb8(0xa7)](_0x26a777[_0x2d6cb8(0xb3)]),_0xc5a89=new shaka[(_0x2d6cb8(0x9b))](_0x3d3450),_0x221887=new shaka['ui'][(_0x2d6cb8(0x9a))](_0xc5a89,_0x15d576,_0x3d3450);_0x56c6f0[_0x2d6cb8(0xc8)+'t']=_0x26a777[_0x2d6cb8(0xa4)],_0xc5a89[_0x2d6cb8(0xb2)]({'streaming':{'bufferingGoal':0xa,'rebufferingGoal':0x2,'startAtSegmentBoundary':!![],'lowLatencyMode':!![]},'manifest':{'dash':{'ignoreMinBufferTime':!![]}},'drm':{'clearKeys':{'c349ec4cb941fbf48a81798dffe7e5eb':_0x26a777[_0x2d6cb8(0x9d)]}}});const _0x54b866=_0x26a777[_0x2d6cb8(0xbf)];try{const _0x34cd5c=_0x26a777[_0x2d6cb8(0xbc)][_0x2d6cb8(0xd5)]('|');let _0x7096f1=-0x7*-0x49+0x1bc2+-0x1dc1;while(!![]){switch(_0x34cd5c[_0x7096f1++]){case'0':_0x56c6f0[_0x2d6cb8(0xc8)+'t']=_0x26a777[_0x2d6cb8(0xc1)];continue;case'1':console[_0x2d6cb8(0xb5)](_0x26a777[_0x2d6cb8(0xb1)]);continue;case'2':await _0xc5a89[_0x2d6cb8(0xaa)](_0x54b866);continue;case'3':_0x3d3450[_0x2d6cb8(0x9c)]=![];continue;case'4':await _0x3d3450[_0x2d6cb8(0xaf)]()[_0x2d6cb8(0xa6)](()=>{const _0x4b48d1=_0x2d6cb8;_0x3d3450[_0x4b48d1(0x9c)]=!![],_0x3d3450[_0x4b48d1(0xaf)]();});continue;}break;}}catch(_0x57f89c){console[_0x2d6cb8(0x90)](_0x26a777[_0x2d6cb8(0xb4)],_0x57f89c),_0x56c6f0[_0x2d6cb8(0xc8)+'t']=_0x26a777[_0x2d6cb8(0xd1)];}}));
   </script>
+  <!-- Anti-Adblock Popup -->
+<div class="adb" id="adb" style="display: none;">
+  <div class="adbs">
+    <h3>Adblock/Brave Shields Detected</h3>
+    <p>Please disable your adblocker or Brave Shields to continue browsing this site.</p>
+  </div>
+</div>
+
+<style>
+.adb {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.adbs {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+@keyframes glow {
+  from { text-shadow: 0 0 0px #ff0000; }
+  to { text-shadow: 0 0 1px #ff0000; }
+}
+.adbs h3 {
+  color: #d00;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+.adbs p {
+  font-size: 16px;
+  color: #333;
+}
+</style>
+
+<script>
+// ----------------- Popup Function -----------------
+function showPopup(reason = "Adblock Detected") {
+  document.getElementById("adb").style.display = "flex";
+  document.querySelector("#adb .adbs h3").innerText = reason;
+
+  if (reason.includes("Brave")) {
+  document.querySelector("#adb .adbs p").innerHTML = `
+    Please disable Brave Shields (click Brave logo → toggle Shields off) to continue browsing.<br>
+    <span style="
+      color: #ff0000;
+      font-weight: bold;
+      animation: glow 1s ease-in-out infinite alternate;
+    ">
+      If still showing message after disabling please reload page
+    </span>
+  `;
+}
+  console.warn("⚠️ Popup Triggered:", reason);
+}
+
+// ----------------- PC Browser Adblock Detection -----------------
+async function detectAdblock() {
+  let detected = false;
+
+  // bait div
+  const bait = document.createElement("div");
+  bait.className = "ad adsbox ad-banner adsense ad-container sponsored";
+  bait.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
+  document.body.appendChild(bait);
+
+  // bait img
+  const img = document.createElement("img");
+  img.src = "https://pagead2.googlesyndication.com/pagead/imgad?id=CAASFeDxyz";
+  img.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
+  img.onerror = () => { detected = true; };
+  document.body.appendChild(img);
+
+  // bait iframe
+  const iframe = document.createElement("iframe");
+  iframe.src = "https://googleads.g.doubleclick.net/pagead/html/r2023/sample-ad.html";
+  iframe.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
+  iframe.onerror = () => { detected = true; };
+  document.body.appendChild(iframe);
+
+  // bait script
+  const script = document.createElement("script");
+  script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+  script.async = true;
+  script.onerror = () => { detected = true; };
+  document.head.appendChild(script);
+
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  if (
+    window.getComputedStyle(bait).display === "none" ||
+    bait.offsetHeight === 0 ||
+    bait.offsetParent === null
+  ) {
+    detected = true;
+  }
+
+  bait.remove();
+  img.remove();
+  iframe.remove();
+  script.remove();
+
+  return detected;
+}
+
+// ----------------- Brave Shields Detection -----------------
+async function detectBraveShields() {
+  try {
+    let res = await fetch("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js", {
+      method: "GET",
+      cache: "no-store",
+      mode: "no-cors"
+    });
+
+    if (res.type === "opaque") {
+      try {
+        const buf = await res.clone().arrayBuffer();
+        console.log("🟡 Brave Response Size:", buf.byteLength);
+
+        // Corrected Logic:
+        // Size < 100 = Shields OFF
+        // Size >= 100 = Shields ON
+        if (buf.byteLength < 100) {
+          return false; // Shields OFF
+        } else {
+          return true;  // Shields ON
+        }
+      } catch (e) {
+        console.warn("🟡 Brave fetch blocked", e);
+        return true; // Shields ON
+      }
+    }
+    return true; // default treat as ON
+  } catch (e) {
+    console.error("🛑 Brave Shields hard blocked", e);
+    return true; // Shields ON
+  }
+}
+
+// ----------------- Main -----------------
+window.addEventListener("load", async () => {
+  const shieldsOn = await detectBraveShields();
+  if (shieldsOn) {
+    showPopup("Brave Shields Detected");
+    return;
+  }
+
+  const adblocker = await detectAdblock();
+  if (adblocker) {
+    showPopup("Adblock Detected");
+  }
+});
+</script>
+
 </body>
-  <script type='text/javascript' src='//packagebellysmoothly.com/63/88/ac/6388ace5c2a702a7b58f724683244363.js'></script>
+<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+
 </html>
+
+  

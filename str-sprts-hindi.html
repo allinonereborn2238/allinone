@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@allinone_reborn</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #242424, #3b5998);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        .player-container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 20px auto;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+
+        .player-container iframe {
+            border-radius: 15px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ad-container {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .join-telegram-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .join-telegram-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #008fd6;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .join-telegram-btn:hover {
+            background-color: #006bb3;
+        }
+    </style>
+</head>
+
+<script type='text/javascript' src='//eltontry.com/09/f1/e9/09f1e956c711aea6a898d5abbb78d092.js'></script>
+
+<body>
+
+    <!-- Ad Above Video Player -->
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '701fef7de243c4e8e91e6e6b3a2fea1e',
+                'format' : 'iframe',
+                'height' : 90,
+                'width' : 728,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//eltontry.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
+    </div>
+
+    <!-- Video Player Inserted via JavaScript (NO document.write) -->
+    <script type="text/javascript">
+        const container = document.createElement('div');
+        container.className = 'player-container';
+        container.innerHTML = `
+            <div style="position:relative;padding-top:56.25%;">
+                <iframe id="contentFrame"
+                    src="https://vimeo.com/event/5176018/embed"
+                    frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:15px;">
+                </iframe>
+            </div>
+        `;
+        document.body.appendChild(container);
+    </script>
+
+    <!-- Ad Below Video Player -->
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '701fef7de243c4e8e91e6e6b3a2fea1e',
+                'format' : 'iframe',
+                'height' : 90,
+                'width' : 728,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//eltontry.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
+    </div>
+
+    <!-- Join Telegram Button -->
+    <div class="join-telegram-container">
+        <button class="join-telegram-btn" onclick="window.open('https://t.me/allinone_reborn', '_blank')">Join Telegram Channel</button>
+    </div>
+
+    <!-- Anti-Adblock Popup -->
+<div class="adb" id="adb" style="display: none;">
+    <div class="adbs">
+        <h3>Adblock Detected</h3>
+        <p>Please disable your adblocker to continue browsing.</p>
+    </div>
+</div>
+
+<style>
+    .adb {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 99999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: #000;
+    }
+
+    .adbs {
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+    }
+
+    .adbs h3 {
+        margin-bottom: 15px;
+        font-size: 24px;
+        color: #d00;
+    }
+
+    .adbs p {
+        font-size: 16px;
+        color: #333;
+    }
+</style>
+
+<script>
+function showAdblockPopup() {
+    document.getElementById('adb').style.display = 'flex';
+}
+
+function baitElementCheck() {
+    return new Promise((resolve) => {
+        const bait = document.createElement('div');
+        bait.className = 'adsbox ad-banner';
+        bait.style.cssText = 'width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;';
+        document.body.appendChild(bait);
+
+        setTimeout(() => {
+            const blocked = window.getComputedStyle(bait).display === 'none' || bait.offsetHeight === 0;
+            bait.remove();
+            resolve(blocked);
+        }, 100); // Wait briefly to give adblocker time to act
+    });
+}
+
+function googleAdsScriptCheck() {
+    return new Promise((resolve) => {
+        const testScript = document.createElement('script');
+        testScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+        testScript.async = true;
+        testScript.type = 'text/javascript';
+
+        // If adblocker blocks it, onerror will trigger
+        testScript.onerror = () => resolve(true);
+        testScript.onload = () => resolve(false);
+
+        document.head.appendChild(testScript);
+    });
+}
+
+window.addEventListener('load', async () => {
+    const baitBlocked = await baitElementCheck();
+    const scriptBlocked = await googleAdsScriptCheck();
+
+    if (baitBlocked || scriptBlocked) {
+        showAdblockPopup();
+    }
+});
+</script>
+</body>
+
+<!-- Extra Scripts -->
+<script type='text/javascript' src='//eltontry.com/63/88/ac/6388ace5c2a702a7b58f724683244363.js'></script>
+<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
+</html>

@@ -1,71 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <script src="https://ssl.p.jwpcdn.com/player/v/8.32.1/jwplayer.js" type="text/javascript"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stream Player</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css" />
     <style>
         body {
+            background-color: #000;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: black;
+            overflow: hidden;
         }
-
-        #player-container {
+        html, body {
+            height: 100%;
             width: 100%;
-            max-width: 800px;
-            aspect-ratio: 16 / 9;
-            margin: 10px 0;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+        }
+        .plyr {
+            height: 100%;
         }
     </style>
 </head>
-<script type='text/javascript' src='//patienthercoldness.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js'></script>
-
+    <script type='text/javascript' src='//patienthercoldness.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js'></script>
 <body>
+    <video id="player" autoplay muted controls crossorigin playsinline></video>
 
-    <!-- ==== TOP AD ==== -->
-    <div class="ad-container">
-        <script type="text/javascript">
-	atOptions = {
-		'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//patienthercoldness.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
-    </div>
-
-    <!-- ==== PLAYER ==== -->
-    <div id="player-container"></div>
-
-    <!-- ==== BOTTOM AD ==== -->
-    <div class="ad-container">
-        <script type="text/javascript">
-	atOptions = {
-		'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//patienthercoldness.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
     <script>
-        const _0x209bf8=_0x2513;(function(_0x52b106,_0x50e8ea){const _0x1f9d7d=_0x2513,_0x209861=_0x52b106();while(!![]){try{const _0x159393=-parseInt(_0x1f9d7d(0x9f))/(-0x3*0x487+0x12da+-0x544)+parseInt(_0x1f9d7d(0xac))/(0x183e+-0x1782+-0xba)+-parseInt(_0x1f9d7d(0xa4))/(0x41*0x45+0x43*0x6d+-0x5*0x935)+-parseInt(_0x1f9d7d(0x9e))/(0x4ff+0x2551+-0x1526*0x2)*(-parseInt(_0x1f9d7d(0xa7))/(0x166*-0xc+0x2*-0x10ce+-0x91*-0x59))+-parseInt(_0x1f9d7d(0xc0))/(-0x339*0xc+-0x1*-0x60a+0x1054*0x2)+-parseInt(_0x1f9d7d(0xbd))/(-0x17a1*-0x1+-0x76f+-0x102b)+parseInt(_0x1f9d7d(0xab))/(0x5*0xd5+-0x17e+-0x1*0x2a3)*(parseInt(_0x1f9d7d(0xb9))/(0xb8e+-0x2025*0x1+0x14a0));if(_0x159393===_0x50e8ea)break;else _0x209861['push'](_0x209861['shift']());}catch(_0x54b4cf){_0x209861['push'](_0x209861['shift']());}}}(_0x3303,0x128394+-0x8691d+-0x74b5));function _0x2513(_0x37f3eb,_0x2c00ca){const _0x74e34f=_0x3303();return _0x2513=function(_0x38676c,_0x128f51){_0x38676c=_0x38676c-(-0x2*-0x12e7+-0x18b*0x19+0x1*0x161);let _0x51c0ad=_0x74e34f[_0x38676c];return _0x51c0ad;},_0x2513(_0x37f3eb,_0x2c00ca);}let stream_url=_0x209bf8(0xaa)+_0x209bf8(0xb6)+_0x209bf8(0xaf)+_0x209bf8(0xca)+_0x209bf8(0xc5)+_0x209bf8(0xbf)+_0x209bf8(0xa0)+'pd';const urlParams=new URLSearchParams(window[_0x209bf8(0xc7)][_0x209bf8(0xb3)]);urlParams[_0x209bf8(0xba)](_0x209bf8(0xb7))&&(stream_url=urlParams[_0x209bf8(0xba)](_0x209bf8(0xb7)));function _0x3303(){const _0x450759=['get','twitter','white','5937589awwLoC','GGr7bdjo','04/default','4950666rUdgex','setup','Logo.jpg?p','cd84ed136b','100%','oxy.php/25','=facebook','location','auto','9b5dbc865f','mpd/mpd_pr','16:9','a.prnewswi','https://mm','03c2e0af2f','4XcwSlU','772535xyjoOx','_primary.m','8159f9f0ce','/WillowTV_','16px','783600XjFDfZ','facebook','tK17QNb+4+','4390105FATMaJ','0cc71f8ab8','th2Pm9AWgM','https://al','24976hZYNcc','1806864axvdwJ','O/cYH8CI0H','cd4d4f6a2e','rn.online/','re.com/med','ia/1919551','tainer','search','XSuP4qMl+9','player-con','linonerebo','stream','key','4491PfjhSy'];_0x3303=function(){return _0x450759;};return _0x3303();}jwplayer[_0x209bf8(0xb8)]=_0x209bf8(0xb4)+_0x209bf8(0xa6)+_0x209bf8(0xa9)+_0x209bf8(0xad)+_0x209bf8(0xbe),jwplayer(_0x209bf8(0xb5)+_0x209bf8(0xb2))[_0x209bf8(0xc1)]({'file':stream_url,'aspectratio':_0x209bf8(0xcb),'width':_0x209bf8(0xc4),'autostart':!![],'image':_0x209bf8(0x9c)+_0x209bf8(0xcc)+_0x209bf8(0xb0)+_0x209bf8(0xb1)+_0x209bf8(0xa2)+_0x209bf8(0xc2)+_0x209bf8(0xc6),'mute':![],'preload':_0x209bf8(0xc8),'captions':{'color':_0x209bf8(0xbc),'fontSize':_0x209bf8(0xa3),'backgroundOpacity':0x0},'sharing':{'sites':[_0x209bf8(0xa5),_0x209bf8(0xbb)]},'drm':{'clearkey':{'keyId':_0x209bf8(0x9d)+_0x209bf8(0xa1)+_0x209bf8(0xc9)+'10','key':_0x209bf8(0xc3)+_0x209bf8(0xa8)+_0x209bf8(0xae)+'4c'}}});
-    </script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const source = "https://hugh.cdn.rumble.cloud/live/t34ch9px/slot-11/pjkk-pn6k/chunklist.m3u8";
+            const video = document.getElementById('player');
 
+            if (Hls.isSupported()) {
+                const hls = new Hls({ maxMaxBufferLength: 100 });
+                hls.loadSource(source);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    const availableQualities = hls.levels.map(level => level.height);
+                    const defaultQuality = availableQualities[0];
+
+                    const player = new Plyr(video, {
+                        controls: [
+                            'play-large', 'play', 'mute', 'volume',
+                            'settings', 'fullscreen', 'pip'
+                        ],
+                        quality: {
+                            default: defaultQuality,
+                            options: availableQualities,
+                            forced: true,
+                            onChange: quality => {
+                                hls.levels.forEach((level, index) => {
+                                    if (level.height === quality) {
+                                        hls.currentLevel = index;
+                                    }
+                                });
+                            }
+                        }
+                    });
+
+                    document.addEventListener('fullscreenchange', () => {
+                        if (document.fullscreenElement && screen.orientation?.lock) {
+                            screen.orientation.lock('landscape').catch(() => {});
+                        } else if (screen.orientation?.unlock) {
+                            screen.orientation.unlock().catch(() => {});
+                        }
+                    });
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = source;
+                new Plyr(video);
+            } else {
+                document.body.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Your browser does not support HLS playback.</p>';
+            }
+        });
+    </script>
+    
 </body>
-<script disable-devtool-auto src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
 </html>

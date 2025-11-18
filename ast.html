@@ -1,85 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <script src="https://ssl.p.jwpcdn.com/player/v/8.32.1/jwplayer.js" type="text/javascript"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Stream Player</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player</title>
+
     <style>
         body {
-            background-color: #000;
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
         }
-        html, body {
-            height: 100%;
+
+        #player-container {
             width: 100%;
-        }
-        video {
-            width: 100%;
-            height: 100%;
-            max-width: 100%;
-        }
-        .plyr {
-            height: 100%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            margin: 10px 0;
         }
     </style>
 </head>
-    <script type='text/javascript' src='//patienthercoldness.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js'></script>
+<script type='text/javascript' src='//patienthercoldness.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js'></script>
+
 <body>
-    <video id="player" autoplay muted controls crossorigin playsinline></video>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
+    <!-- ==== TOP AD ==== -->
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key': '701fef7de243c4e8e91e6e6b3a2fea1e',
+                'format': 'iframe',
+                'height': 90,
+                'width': 728,
+                'params': {}
+            };
+        </script>
+        <script type="text/javascript" src="//eltontry.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
+    </div>
+
+    <!-- ==== PLAYER ==== -->
+    <div id="player-container"></div>
+
+    <!-- ==== BOTTOM AD ==== -->
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key': '701fef7de243c4e8e91e6e6b3a2fea1e',
+                'format': 'iframe',
+                'height': 90,
+                'width': 728,
+                'params': {}
+            };
+        </script>
+        <script type="text/javascript" src="//eltontry.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
+    </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const source = "https://foxmatch.pages.dev/Playe.m3u8";
-            const video = document.getElementById('player');
+        // Default stream
+        let stream_url = "https://mpdchecker.updatesbyrahul.site/linear.php/2504/default_primary.mpd";
 
-            if (Hls.isSupported()) {
-                const hls = new Hls({ maxMaxBufferLength: 100 });
-                hls.loadSource(source);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    const availableQualities = hls.levels.map(level => level.height);
-                    const defaultQuality = availableQualities[0];
+        // Read ?stream= from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("stream")) {
+            stream_url = urlParams.get("stream");
+        }
 
-                    const player = new Plyr(video, {
-                        controls: [
-                            'play-large', 'play', 'mute', 'volume',
-                            'settings', 'fullscreen', 'pip'
-                        ],
-                        quality: {
-                            default: defaultQuality,
-                            options: availableQualities,
-                            forced: true,
-                            onChange: quality => {
-                                hls.levels.forEach((level, index) => {
-                                    if (level.height === quality) {
-                                        hls.currentLevel = index;
-                                    }
-                                });
-                            }
-                        }
-                    });
-
-                    document.addEventListener('fullscreenchange', () => {
-                        if (document.fullscreenElement && screen.orientation?.lock) {
-                            screen.orientation.lock('landscape').catch(() => {});
-                        } else if (screen.orientation?.unlock) {
-                            screen.orientation.unlock().catch(() => {});
-                        }
-                    });
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = source;
-                new Plyr(video);
-            } else {
-                document.body.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Your browser does not support HLS playback.</p>';
+        jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
+        jwplayer("player-container").setup({
+            file: stream_url,
+            aspectratio: '16:9',
+            width: '100%',
+            autostart: true,
+            image: 'https://mma.prnewswire.com/media/1919551/WillowTV_Logo.jpg?p=facebook',
+            mute: false,
+            preload: 'auto',
+            captions: { color: 'white', fontSize: '16px', backgroundOpacity: 0 },
+            sharing: {
+                sites: ['facebook', 'twitter']
+            },
+            drm: {
+                "clearkey": {
+                    "keyId": "03c2e0af2f8159f9f0ce9b5dbc865f10",
+                    "key": "cd84ed136b0cc71f8ab8cd4d4f6a2e4c"
+                }
             }
         });
     </script>
-    
+
+    <!-- Anti-Adblock Popup -->
+    <div class="adb" id="adb" style="display: none;">
+        <div class="adbs">
+            <h3>Adblock Detected</h3>
+            <p>Please disable adblock to proceed to the destination page</p>
+        </div>
+    </div>
+
+    <style>
+        .adb {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background: rgba(51, 51, 51, 0.9);
+            z-index: 10000;
+            text-align: center;
+            color: #111;
+        }
+
+        .adbs {
+            margin: 0 auto;
+            width: auto;
+            min-width: 400px;
+            position: fixed;
+            z-index: 99999;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 30px 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+        }
+    </style>
+
+    <script>
+        async function detectAdBlock() {
+            let adBlockEnabled = false;
+            const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+                await fetch(new Request(googleAdUrl), { signal: controller.signal })
+                    .then(() => clearTimeout(timeoutId))
+                    .catch(error => {
+                        if (error.name === 'AbortError') return;
+                        adBlockEnabled = true;
+                    });
+            } catch (e) {
+                adBlockEnabled = true;
+            }
+
+            if (adBlockEnabled) {
+                document.getElementById("adb").style.display = "block";
+            }
+        }
+
+        detectAdBlock();
+    </script>
+
+    <script disable-devtool-auto src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
 </body>
+
+<script type='text/javascript' src='//eltontry.com/63/88/ac/6388ace5c2a702a7b58f724683244363.js'></script>
+
 </html>

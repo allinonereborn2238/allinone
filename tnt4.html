@@ -1,286 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <script src="https://ssl.p.jwpcdn.com/player/v/8.32.1/jwplayer.js" type="text/javascript"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: black;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player</title>
 
-        #player-container {
-            width: 100%;
-            max-width: 800px;
-            aspect-ratio: 16 / 9;
-            margin: 10px 0;
-        }
+  <!-- Shaka Player -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.ui.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/controls.min.css" crossorigin="anonymous">
 
-        /* Custom scrollbar styles */
-        body::-webkit-scrollbar {
-            width: 8px;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-
-        body::-webkit-scrollbar-thumb {
-            border-radius: 10px;
-            background-color: rgba(140, 140, 140, 0.5);
-        }
-
-        body::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(140, 140, 140, 0.7);
-        }
-
-        .ad-container {
-            margin: 10px 0;
-            text-align: center;
-        }
-    </style>
-</head>
-<script type='text/javascript' src='//checkupoceandip.com/09/f1/e9/09f1e956c711aea6a898d5abbb78d092.js'></script>
-
-<body>
-    <div class="ad-container">
-        <script type="text/javascript">
-            atOptions = {
-                'key': '701fef7de243c4e8e91e6e6b3a2fea1e',
-                'format': 'iframe',
-                'height': 90,
-                'width': 728,
-                'params': {}
-            };
-        </script>
-        <script type="text/javascript" src="//checkupoceandip.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
-    </div>
-
-    <div id="player-container"></div>
-
-    <div class="ad-container">
-        <script type="text/javascript">
-            atOptions = {
-                'key': '701fef7de243c4e8e91e6e6b3a2fea1e',
-                'format': 'iframe',
-                'height': 90,
-                'width': 728,
-                'params': {}
-            };
-        </script>
-        <script type="text/javascript" src="//checkupoceandip.com/701fef7de243c4e8e91e6e6b3a2fea1e/invoke.js"></script>
-    </div>
-
-    <script type="text/javascript">
-        jwplayer.key = 'XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';
-        jwplayer("player-container").setup({
-            file: "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/i2pcjr4pe5/out/v1/912e9db56d75403b8a9ac0a719110f36/cenc.mpd",
-            aspectratio: '16:9',
-            width: '100%',
-            autostart: true,
-            image: 'https://mma.prnewswire.com/media/1919551/WillowTV_Logo.jpg?p=facebook',
-            mute: false,
-            preload: 'auto',
-            captions: { color: 'white', fontSize: '16px', backgroundOpacity: 0 },
-            sharing: {
-                sites: ['facebook', 'twitter']
-            },
-            drm: {
-                "clearkey": {
-                    "keyId": "192b1115da041585c77200128549efa1",
-                    "key": "634e10efe4abbb14be400a3ccbac0258"
-                }
-            }
-        });
-
-        // Ensure playback compatibility for mobile devices
-        jwplayer().on('ready', function () {
-            const player = document.querySelector('#player-container');
-            if (player) {
-                player.style.height = window.innerHeight + 'px';
-            }
-        });
-
-        jwplayer().on('play', function () {
-            document.body.style.backgroundColor = "#000";
-        });
-
-        jwplayer().on('error', function (e) {
-            console.error("Playback error:", e.message);
-        });
-    </script>
-    <!-- Anti-Adblock Popup -->
-<div class="adb" id="adb" style="display: none;">
-  <div class="adbs">
-    <h3>Adblock/Brave Shields Detected</h3>
-    <p>Please disable your adblocker or Brave Shields to continue browsing this site.</p>
-  </div>
-</div>
-
-<style>
-.adb {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  background: rgba(0, 0, 0, 0.85);
-  z-index: 99999;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-.adbs {
-  background: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
-  text-align: center;
-  max-width: 400px;
-  width: 90%;
-}
-@keyframes glow {
-  from { text-shadow: 0 0 0px #ff0000; }
-  to { text-shadow: 0 0 1px #ff0000; }
-}
-.adbs h3 {
-  color: #d00;
-  font-size: 24px;
-  margin-bottom: 15px;
-}
-.adbs p {
-  font-size: 16px;
-  color: #333;
-}
-</style>
-
-<script>
-// ----------------- Popup Function -----------------
-function showPopup(reason = "Adblock Detected") {
-  document.getElementById("adb").style.display = "flex";
-  document.querySelector("#adb .adbs h3").innerText = reason;
-
-  if (reason.includes("Brave")) {
-  document.querySelector("#adb .adbs p").innerHTML = `
-    Please disable Brave Shields (click Brave logo → toggle Shields off) to continue browsing.<br>
-    <span style="
-      color: #ff0000;
-      font-weight: bold;
-      animation: glow 1s ease-in-out infinite alternate;
-    ">
-      If still showing message after disabling please reload page
-    </span>
-  `;
-}
-  console.warn("⚠️ Popup Triggered:", reason);
-}
-
-// ----------------- PC Browser Adblock Detection -----------------
-async function detectAdblock() {
-  let detected = false;
-
-  // bait div
-  const bait = document.createElement("div");
-  bait.className = "ad adsbox ad-banner adsense ad-container sponsored";
-  bait.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
-  document.body.appendChild(bait);
-
-  // bait img
-  const img = document.createElement("img");
-  img.src = "https://pagead2.googlesyndication.com/pagead/imgad?id=CAASFeDxyz";
-  img.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
-  img.onerror = () => { detected = true; };
-  document.body.appendChild(img);
-
-  // bait iframe
-  const iframe = document.createElement("iframe");
-  iframe.src = "https://googleads.g.doubleclick.net/pagead/html/r2023/sample-ad.html";
-  iframe.style.cssText = "width:1px;height:1px;position:absolute;left:-9999px;top:-9999px;";
-  iframe.onerror = () => { detected = true; };
-  document.body.appendChild(iframe);
-
-  // bait script
-  const script = document.createElement("script");
-  script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
-  script.async = true;
-  script.onerror = () => { detected = true; };
-  document.head.appendChild(script);
-
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  if (
-    window.getComputedStyle(bait).display === "none" ||
-    bait.offsetHeight === 0 ||
-    bait.offsetParent === null
-  ) {
-    detected = true;
-  }
-
-  bait.remove();
-  img.remove();
-  iframe.remove();
-  script.remove();
-
-  return detected;
-}
-
-// ----------------- Brave Shields Detection -----------------
-async function detectBraveShields() {
-  try {
-    let res = await fetch("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js", {
-      method: "GET",
-      cache: "no-store",
-      mode: "no-cors"
-    });
-
-    if (res.type === "opaque") {
-      try {
-        const buf = await res.clone().arrayBuffer();
-        console.log("🟡 Brave Response Size:", buf.byteLength);
-
-        // Corrected Logic:
-        // Size < 100 = Shields OFF
-        // Size >= 100 = Shields ON
-        if (buf.byteLength < 100) {
-          return false; // Shields OFF
-        } else {
-          return true;  // Shields ON
-        }
-      } catch (e) {
-        console.warn("🟡 Brave fetch blocked", e);
-        return true; // Shields ON
-      }
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
     }
-    return true; // default treat as ON
-  } catch (e) {
-    console.error("🛑 Brave Shields hard blocked", e);
-    return true; // Shields ON
-  }
-}
 
-// ----------------- Main -----------------
-window.addEventListener("load", async () => {
-  const shieldsOn = await detectBraveShields();
-  if (shieldsOn) {
-    showPopup("Brave Shields Detected");
-    return;
-  }
+    #player-container {
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+      margin: 10px 0;
+      position: relative;
+      background-color: black;
+      border: 2px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+    }
 
-  const adblocker = await detectAdblock();
-  if (adblocker) {
-    showPopup("Adblock Detected");
-  }
-});
-</script>
+    video {
+      width: 100%;
+      height: 100%;
+      background-color: black;
+    }
 
+    #status-message {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<script type='text/javascript' src='//patienthercoldness.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js'></script>
+<body>
+  <!-- Top Ad -->
+  <div class="ad-container">
+    <script type="text/javascript">
+      atOptions = {
+        'key': 'db78e49a3c97dc3562c3b48559ea4a28',
+        'format': 'iframe',
+        'height': 50,
+        'width': 320,
+        'params': {}
+      };
+    </script>
+    <script type="text/javascript" src="//checkupoceandip.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
+  </div>
+
+  <!-- Player -->
+  <div id="player-container">
+    <video id="video" autoplay playsinline muted></video>
+  </div>
+
+  <div id="status-message">Initializing player...</div>
+
+  <!-- Bottom Ad -->
+  <div class="ad-container">
+    <script type="text/javascript">
+      atOptions = {
+        'key': 'db78e49a3c97dc3562c3b48559ea4a28',
+        'format': 'iframe',
+        'height': 50,
+        'width': 320,
+        'params': {}
+      };
+    </script>
+    <script type="text/javascript" src="//checkupoceandip.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
+  </div>
+
+  <script>
+    async function initPlayer() {
+      const video = document.getElementById('video');
+      const container = document.getElementById('player-container');
+      const status = document.getElementById('status-message');
+
+      shaka.polyfill.installAll();
+
+      if (!shaka.Player.isBrowserSupported()) {
+        status.textContent = "Browser not supported!";
+        return;
+      }
+
+      const player = new shaka.Player(video);
+      const ui = new shaka.ui.Overlay(player, container, video);
+
+      // Player config for smooth buffering
+      player.configure({
+        streaming: {
+          bufferingGoal: 10,
+          rebufferingGoal: 2,
+          startAtSegmentBoundary: true,
+          lowLatencyMode: true
+        },
+        manifest: {
+          dash: {
+            ignoreMinBufferTime: true
+          }
+        },
+        drm: {
+          clearKeys: {
+            '192b1115da041585c77200128549efa1': '634e10efe4abbb14be400a3ccbac0258'
+          }
+        }
+      });
+
+      // Your MPD URL
+      const streamUrl = "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/i2pcjr4pe5/out/v1/912e9db56d75403b8a9ac0a719110f36/cenc.mpd";
+
+      // Load stream
+      try {
+        await player.load(streamUrl);
+        console.log("✅ Stream loaded successfully!");
+        status.textContent = "Stream loaded successfully!";
+
+        // Try autoplay (unmuted if possible)
+        try {
+          video.muted = false;
+          await video.play();
+        } catch {
+          video.muted = true;
+          await video.play();
+        }
+      } catch (error) {
+        console.error("Stream load failed:", error);
+        status.textContent = "⚠️ Failed to load stream. Please try again.";
+      }
+
+      // Error listener
+      player.addEventListener('error', e => {
+        console.error("Player error:", e.detail);
+        status.textContent = "⚠️ Playback error.";
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initPlayer);
+  </script>
+
+  <script disable-devtool-auto src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
 </body>
-<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
-<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool@latest'></script>
-
 </html>

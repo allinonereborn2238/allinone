@@ -2,7 +2,6 @@
 <html lang="hi">
 <head>
   <meta charset="utf-8" />
-  <!-- viewport-fit=cover for iOS fullscreen safe area support -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Responsive Stream Player</title>
 
@@ -11,7 +10,7 @@
   <style>
     :root{
       --bg:#000;
-      --control-size: 44px; /* base control tap target */
+      --control-size: 44px;
     }
     html,body{
       height:100%;
@@ -20,16 +19,13 @@
       padding:0;
       background:var(--bg);
       -webkit-font-smoothing:antialiased;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -ms-user-select: none;
       user-select: none;
     }
 
     /* full-viewport fixed container so player always fills screen and works with orientation changes */
     .player-wrap {
       position:fixed;
-      inset:0; /* top:0; right:0; bottom:0; left:0; */
+      inset:0;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -37,9 +33,9 @@
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
       box-sizing: border-box;
       overflow:hidden;
+      touch-action: manipulation;
     }
 
-    /* keep an inner container to maintain aspect ratio if needed, and to let controls overlay */
     .video-container {
       width:100%;
       height:100%;
@@ -56,15 +52,12 @@
       height:100%;
       max-width:100%;
       max-height:100%;
-      /* contain = whole video visible with black bars if aspect mismatch
-         cover = fills entire area but may crop edges (uncomment if you prefer) */
-      object-fit: contain;
+      object-fit: contain; /* change to cover if you prefer fullscreen crop */
       background:#000;
       border:0;
       display:block;
     }
 
-    /* Plyr container must fill parent so controls position correctly */
     .plyr {
       width:100%;
       height:100%;
@@ -90,7 +83,6 @@
       pointer-events:none;
     }
 
-    /* smaller controls on small screens, larger on desktop */
     @media (max-width:520px){
       :root{ --control-size: 40px; }
       .spinner { font-size:13px; padding:6px 10px; }
@@ -100,7 +92,6 @@
       .spinner { font-size:15px; padding:10px 14px; }
     }
 
-    /* ensure Plyr controls are easily tappable on mobile */
     .plyr .plyr__controls {
       gap:8px;
     }
@@ -109,18 +100,19 @@
       min-height: var(--control-size);
     }
 
-    /* full-screen styling tweaks */
-    .plyr--fullscreen {
-      background:var(--bg);
+    /* ensure the auto-hide class transitions smoothly */
+    .plyr--hide-controls .plyr__controls {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease-in-out;
+    }
+    .plyr__controls {
+      transition: opacity .25s ease-in-out;
     }
   </style>
 </head>
-  <script
-  type="text/javascript"
-  src="//peelwrinkle.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js"
-></script>
 <body>
-  <div class="player-wrap">
+  <div class="player-wrap" id="playerWrap">
     <div class="video-container">
       <video id="player" autoplay muted playsinline preload="auto" crossorigin></video>
       <div id="spinner" class="spinner" aria-hidden="true">
@@ -138,17 +130,20 @@
 
   <script>
   (function(){
-    // CONFIG: only change source
+    // ========== CONFIG ==========
     const source = "https://golu.allinonereborn.fun/hls_cors.php?key=mukesh";
     const video = document.getElementById('player');
     const spinner = document.getElementById('spinner');
     const spinnerText = document.getElementById('spinnerText');
+    const playerWrap = document.getElementById('playerWrap');
 
-    // instantiate Plyr early (so UI is ready)
+    // instantiate Plyr early so UI exists immediately
     const plyrPlayer = new Plyr(video, {
       controls: ['play-large','play','mute','volume','settings','airplay','fullscreen','pip'],
+      hideControls: true,
       clickToPlay: true,
-      hideControls: false
+      inactivityTimeout: 3000, // 3 seconds
+      keyboard: { global: true }
     });
 
     function showSpinner(text){
@@ -156,19 +151,36 @@
     }
     function hideSpinner(){ if(spinner) spinner.style.display = 'none'; }
 
-    // responsive behaviour on orientation change / resize:
-    // we can adapt player or request level changes if needed (example only)
-    function onResize(){
-      // If you prefer to force a specific aspect ratio / quality you can detect viewport here
-      // const w = window.innerWidth, h = window.innerHeight;
-      // if(w>h){ /* landscape */ } else { /* portrait */ }
+    // Helper: force-show controls by removing plyr's hide-class
+    function forceShowControls() {
+      try {
+        const c = plyrPlayer && plyrPlayer.elements && plyrPlayer.elements.container;
+        if (c) c.classList.remove('plyr--hide-controls');
+      } catch(e){}
+    }
+    // Helper: let Plyr auto-hide again by not interfering. We'll call forceShowControls on interaction.
+    function scheduleAutoHideReset() {
+      // Plyr will auto hide after inactivityTimeout; we just ensure class removed when user interacts
+      // and allow Plyr to reapply hide class automatically.
+      // nothing else needed here
+    }
+
+    // show spinner initially
+    showSpinner('Loading manifest…');
+
+    // Responsive: on resize/orientation we can hint hls to cap level to player size
+    function onResize() {
+      try {
+        if (window.hlsInstance && window.hlsInstance.config && window.hlsInstance.levels) {
+          // optional: cap levels to player size if supported - not forcing anything here
+        }
+      } catch (e) {}
     }
     window.addEventListener('resize', onResize, {passive:true});
     window.addEventListener('orientationchange', onResize, {passive:true});
 
-    // HLS playback
+    // HLS playback with hls.js for browsers (fast startup tuning)
     if (Hls.isSupported()) {
-      showSpinner('Loading manifest…');
       const hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
@@ -177,28 +189,28 @@
         backBufferLength: 30,
         capLevelToPlayerSize: true,
         liveSyncDurationCount: 3,
+        manifestLoadingTimeOut: 8000,
+        levelLoadingTimeOut: 8000,
+        fragLoadingTimeOut: 10000
       });
+      // expose for optional debugging/resizing
+      window.hlsInstance = hls;
 
       hls.on(Hls.Events.MANIFEST_LOADING, () => showSpinner('Loading manifest…'));
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        // give video a quick play attempt (muted allows autoplay on most browsers)
+        // try play; muted autoplay usually allowed
         video.play().catch(()=>{});
       });
 
-      // hide spinner when first fragment parsed or when playback starts
+      // hide spinner when fragments begin arriving / first frame ready
       hls.on(Hls.Events.FRAG_LOADED, () => hideSpinner());
       hls.on(Hls.Events.FRAG_PARSING_INIT_SEGMENT, () => hideSpinner());
       video.addEventListener('playing', hideSpinner);
 
-      // attach and load
-      hls.loadSource(source);
-      hls.attachMedia(video);
-
-      // error recovery
-      hls.on(Hls.Events.ERROR, function(event, data){
+      hls.on(Hls.Events.ERROR, function(event, data) {
         console.warn('hls error', data);
-        if(data && data.fatal){
-          switch(data.type){
+        if (data && data.fatal) {
+          switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
               showSpinner('Network error — retrying…');
               hls.startLoad();
@@ -215,7 +227,11 @@
         }
       });
 
+      hls.loadSource(source);
+      hls.attachMedia(video);
+
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Native HLS (Safari)
       showSpinner('Starting native HLS…');
       video.src = source;
       video.addEventListener('loadedmetadata', () => {
@@ -226,12 +242,38 @@
       document.body.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Your browser does not support HLS playback.</p>';
     }
 
-    // ensure spinner removed if video plays
+    // Ensure spinner removed if video plays
     video.addEventListener('playing', hideSpinner);
     video.addEventListener('error', () => showSpinner('Playback error — check source'));
 
-    // try autoplay again soon if still paused
-    setTimeout(()=>{ if(video.paused) video.play().catch(()=>{}); }, 700);
+    // --- Improve control show/hide responsiveness ---
+    // On user interaction (mouse move, touch), ensure controls appear immediately.
+    let interactionTimer = null;
+    function onUserInteraction(e) {
+      // show controls immediately
+      forceShowControls();
+
+      // clear any pending timer
+      if (interactionTimer) clearTimeout(interactionTimer);
+
+      // After inactivity timeout, allow Plyr to hide controls again (Plyr manages it internally).
+      // We'll schedule a small task to re-add hide-class if user left, but default Plyr will handle it.
+      interactionTimer = setTimeout(() => {
+        // Let Plyr apply its own hide class — do nothing here.
+      }, 3500); // slightly longer than inactivityTimeout to ensure one last visible moment
+    }
+
+    // listen on the wrapper for pointer/mouse/touch
+    ['mousemove','mousedown','touchstart','touchmove','touchend','pointermove'].forEach(evt => {
+      playerWrap.addEventListener(evt, onUserInteraction, {passive:true});
+    });
+
+    // Also show controls when keyboard used (space/play)
+    document.addEventListener('keydown', forceShowControls, {passive:true});
+
+    // try autoplay again soon if still paused (some browsers delay autoplay)
+    setTimeout(()=>{ if (video.paused) video.play().catch(()=>{}); }, 700);
+
   })();
   </script>
 </body>

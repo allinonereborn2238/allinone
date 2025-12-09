@@ -1,88 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Stream Player</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stream Player — Seek + Progress</title>
+
+    <!-- Plyr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css" />
+
     <style>
-        body {
-            background-color: #000;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+        :root {
+            --bg: #000;
+            --fg: #fff;
         }
         html, body {
             height: 100%;
             width: 100%;
+            margin: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+        .player-wrap {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         video {
             width: 100%;
             height: 100%;
-            max-width: 100%;
+            object-fit: contain;
+            background: #000;
         }
+        .dvr-indicator {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            z-index: 50;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Make plyr full height */
         .plyr {
             height: 100%;
         }
+
+        /* mobile friendly tweaks */
+        @media (max-width: 640px) {
+            .dvr-indicator { font-size: 12px; padding: 5px 8px; }
+        }
     </style>
 </head>
-    <script
-  type="text/javascript"
-  src="//peelwrinkle.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js"
-></script>
 <body>
-    <video id="player" autoplay muted controls crossorigin playsinline></video>
+    <div class="player-wrap">
+        <div id="dvr" class="dvr-indicator">Checking DVR...</div>
+        <video id="player" controls crossorigin playsinline></video>
+    </div>
 
+    <!-- hls.js and Plyr -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // ====== CHANGE SOURCE HERE ======
             const source = "https://cdn30091.ensta392zij.com/stream2/i-cdn-0/aa15181ef8c5562b5627797750588a7e/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT21EValWTEtWeNdUT00UbFFTW65EbN1mUtl1VRBTTU10dZpXQ180RNRTW61UP:1765262241:150.242.149.148:17db32c057998daf8691ba940a2aeb7dd6dfa90dc0242f339a56a862402ea578/1080/index.m3u8";
-            const video = document.getElementById('player');
+            // =================================
 
+            const video = document.getElementById('player');
+            const dvrIndicator = document.getElementById('dvr');
+
+            // Plyr controls: include progress, current-time, duration so user can seek
+            // and show a nicer control bar.
+            const plyrControls = [
+                'play-large', 'play', 'progress', 'current-time', 'duration',
+                'mute', 'volume', 'settings', 'quality', 'pip', 'airplay', 'fullscreen'
+            ];
+
+            let player; // Plyr instance
+            let hls;    // Hls instance (if used)
+
+            // Helper: update DVR indicator text
+            function setDvrText(text) {
+                dvrIndicator.textContent = text;
+            }
+
+            // Initialize Plyr with a basic config. We'll wire quality options later.
+            function initPlyr() {
+                player = new Plyr(video, {
+                    controls: plyrControls,
+                    clickToPlay: true,
+                    keyboard: { global: true },
+                    hideControls: false
+                });
+
+                // When user uses player UI to change time (seek), the 'seeking' event fires on video.
+                video.addEventListener('seeking', () => {
+                    // If using Hls and the user seeks outside buffered region, ensure hls loads from that position
+                    if (hls && typeof hls.startLoad === 'function') {
+                        // hls.startLoad(startPosition) accepts null or number
+                        const seekPos = video.currentTime;
+                        // In live streams with sliding window, startLoad(seekPos) will request segments around that time.
+                        try {
+                            hls.startLoad(seekPos);
+                        } catch (e) {
+                            // ignore if not allowed
+                        }
+                    }
+                });
+            }
+
+            // If hls.js supported, use it for .m3u8
             if (Hls.isSupported()) {
-                const hls = new Hls({ maxMaxBufferLength: 100 });
+                // tweak hls config to favor larger buffer and better DVR seeking (if upstream supports)
+                const hlsConfig = {
+                    // allow more buffer for smoother seeking when DVR window exists
+                    maxBufferLength: 600,        // seconds of buffer
+                    maxMaxBufferLength: 1200,
+                    liveSyncDurationCount: 3,   // how many segments behind live edge to keep
+                    // allow seeking far back inside the available window
+                    enableWorker: true,
+                    lowLatencyMode: false,
+                    // debug: true
+                };
+
+                hls = new Hls(hlsConfig);
                 hls.loadSource(source);
                 hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    const availableQualities = hls.levels.map(level => level.height);
-                    const defaultQuality = availableQualities[0];
 
-                    const player = new Plyr(video, {
-                        controls: [
-                            'play-large', 'play', 'mute', 'volume',
-                            'settings', 'fullscreen', 'pip'
-                        ],
-                        quality: {
-                            default: defaultQuality,
+                // When manifest parsed, initialize Plyr and quality options
+                hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+                    // Build qualities array (heights). Filter duplicates and sort descending.
+                    let availableQualities = hls.levels
+                        .map(l => l.height || l.bitrate)
+                        .filter((v, i, arr) => arr.indexOf(v) === i)
+                        .sort((a, b) => b - a);
+
+                    if (!availableQualities.length) {
+                        availableQualities = ['Auto'];
+                    }
+
+                    // Initialize Plyr now that media is attached
+                    initPlyr();
+
+                    // Add quality options into Plyr settings (Plyr expects this config when created,
+                    // but we've already created it — so we manually add quality menu via Plyr API)
+                    // Plyr supports player.once('ready', ...) but here we set attribute to let settings show.
+                    if (player) {
+                        // Add a simple quality selection inside Plyr settings (Plyr's built-in quality works with <video> sources)
+                        // We'll create a custom control through the settings menu by using the 'quality' option at instantiation
+                        // and update hls.currentLevel when changed.
+                        // Because we created Plyr earlier, just set player.options.quality (for UI)
+                        player.options.quality = {
+                            default: availableQualities[0],
                             options: availableQualities,
                             forced: true,
-                            onChange: quality => {
-                                hls.levels.forEach((level, index) => {
-                                    if (level.height === quality) {
-                                        hls.currentLevel = index;
+                            onChange: (newQuality) => {
+                                // match level by height or bitrate
+                                for (let i = 0; i < hls.levels.length; i++) {
+                                    const lvl = hls.levels[i];
+                                    const lvlVal = lvl.height || lvl.bitrate;
+                                    if (lvlVal === newQuality) {
+                                        hls.currentLevel = i;
+                                        return;
                                     }
-                                });
+                                }
+                                // if not found (e.g., Auto)
+                                if (newQuality === 'Auto') {
+                                    hls.currentLevel = -1; // auto
+                                }
                             }
-                        }
-                    });
+                        };
+                    }
 
-                    document.addEventListener('fullscreenchange', () => {
-                        if (document.fullscreenElement && screen.orientation?.lock) {
-                            screen.orientation.lock('landscape').catch(() => {});
-                        } else if (screen.orientation?.unlock) {
-                            screen.orientation.unlock().catch(() => {});
+                    // Check if playlist has DVR / seekable duration (approx)
+                    // Hls.js exposes details on levels; the browser video element has a seekable TimeRanges
+                    setTimeout(() => {
+                        const seekable = video.seekable;
+                        if (seekable && seekable.length) {
+                            // compute total seekable duration
+                            const start = seekable.start(0);
+                            const end = seekable.end(0);
+                            const duration = end - start;
+                            // if duration > some threshold, likely DVR is supported
+                            if (duration > 8) {
+                                setDvrText(`DVR available — window ${Math.round(duration)}s`);
+                            } else {
+                                setDvrText('Live (no large DVR window)');
+                            }
+                        } else {
+                            setDvrText('Live (seek not available)');
                         }
-                    });
+                    }, 500);
                 });
+
+                // When level loaded / updated, we can also check details for target durations etc.
+                hls.on(Hls.Events.LEVEL_UPDATED, (evt, data) => {
+                    // optional: we could inspect details = data.details for targetduration or fragments
+                    // but we'll rely on video.seekable check already done.
+                });
+
+                // Error handling: try to recover if possible
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    const errType = data.type;
+                    const errDetails = data.details;
+                    const fatal = data.fatal;
+                    console.warn('hls.js error', event, data);
+                    if (fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                // try to recover network error
+                                console.log('fatal network error encountered, trying to recover');
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.log('fatal media error encountered, trying to recover');
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                // cannot recover
+                                hls.destroy();
+                                setDvrText('Playback error — check source');
+                                break;
+                        }
+                    }
+                });
+
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // Native HLS (Safari, iOS) path
                 video.src = source;
-                new Plyr(video);
+                initPlyr();
+
+                // For native HLS, check seekable after metadata loaded
+                video.addEventListener('loadedmetadata', () => {
+                    const seekable = video.seekable;
+                    if (seekable && seekable.length) {
+                        const duration = seekable.end(0) - seekable.start(0);
+                        if (duration > 8) {
+                            setDvrText(`DVR available — window ${Math.round(duration)}s`);
+                        } else {
+                            setDvrText('Live (no large DVR window)');
+                        }
+                    } else {
+                        setDvrText('Live (seek not available)');
+                    }
+                });
             } else {
+                // Not supported
                 document.body.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Your browser does not support HLS playback.</p>';
             }
+
+            // Extra: update DVR indicator live (useful if manifest updates)
+            setInterval(() => {
+                try {
+                    const seekable = video.seekable;
+                    if (seekable && seekable.length) {
+                        const dur = (seekable.end(0) - seekable.start(0));
+                        if (dur > 8) {
+                            setDvrText(`DVR available — window ${Math.round(dur)}s`);
+                        } else {
+                            setDvrText('Live (no large DVR window)');
+                        }
+                    }
+                } catch (e) {
+                    // ignore
+                }
+            }, 3000);
+
         });
     </script>
-    
 </body>
 </html>

@@ -115,6 +115,10 @@
     .plyr__controls { transition: opacity .25s ease-in-out; }
   </style>
 </head>
+  <script
+  type="text/javascript"
+  src="//peelwrinkle.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js"
+></script>
 <body>
   <div class="player-wrap" id="playerWrap">
     <div class="video-container">
@@ -308,7 +312,7 @@
     // overlay click / keyboard activate plays video (user gesture)
     function onOverlayActivate(e) {
       // ensure muted for autoplay success; user can unmute after
-      try { video.muted = false; video.volume = 0; } catch(e){}
+      try { video.muted = false; video.volume = 5; } catch(e){}
       video.play().then(() => {
         hideOverlay();
         hideSpinner();

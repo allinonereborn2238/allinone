@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Responsive Stream Player — Autoplay</title>
+  <title>Player — Autoplay</title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css" />
 
@@ -308,7 +308,7 @@
     // overlay click / keyboard activate plays video (user gesture)
     function onOverlayActivate(e) {
       // ensure muted for autoplay success; user can unmute after
-      try { video.muted = true; video.volume = 0; } catch(e){}
+      try { video.muted = false; video.volume = 0; } catch(e){}
       video.play().then(() => {
         hideOverlay();
         hideSpinner();

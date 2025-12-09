@@ -319,7 +319,7 @@
       }).catch((err)=>{
         console.warn('Play from overlay failed:', err);
         // as last resort, unmute and try again (some browsers require user gesture to unmute)
-        try { video.muted = false; video.volume = 1; } catch(e){}
+        try { video.muted = false; video.volume = 5; } catch(e){}
         video.play().then(()=>{ hideOverlay(); hideSpinner(); }).catch(()=>{ /* do nothing */ });
       });
     }

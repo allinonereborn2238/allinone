@@ -1,202 +1,175 @@
 <!DOCTYPE html>
-<html>
+<html lang="hi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sony liv</title>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.ui.min.js" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/controls.min.css" crossorigin="anonymous">
-
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      background: #000;
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-      font-family: system-ui, -apple-system, sans-serif;
-    }
-    .shaka-video-container {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-    video {
-      width: 100%;
-      height: 100%;
-      background: #000;
-      object-fit: contain;
-    }
-    .shaka-spinner-container,
-    .shaka-spinner,
-    .shaka-spinner-svg {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-    }
-
-    /* Chrome Only Modal */
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      backdrop-filter: blur(6px);
-      background: rgba(0,0,0,0.4);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      animation: fadeIn .5s ease;
-    }
-    .modal.hidden { display: none !important; }
-    .modal-content {
-      background: rgba(255, 0, 0, 0.1);
-      border: 1px solid rgba(255, 0, 0, 0.3);
-      border-radius: 20px;
-      padding: 30px 25px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      color: #f3f4f6;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      backdrop-filter: blur(12px);
-      transform: scale(.95);
-      animation: scaleIn .4s ease forwards;
-    }
-    .modal-content h2 { font-size: 24px; font-weight: 700; color: #f87171; margin-bottom: 16px; }
-    .modal-content p { font-size: 16px; color: #d1d5db; margin-bottom: 24px; line-height: 1.5; }
-    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-    @keyframes scaleIn { to { transform: scale(1); opacity: 1 } }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stream Player</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css" />
+    <style>
+        html, body { height:100%; width:100%; margin:0; background:#000; }
+        .player-wrap { height:100%; width:100%; display:flex; align-items:center; justify-content:center; position:relative; }
+        video#player { width:100%; height:100%; max-width:100%; object-fit:cover; background:#000; }
+        .spinner {
+            position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+            color:#fff; font-family:Arial, sans-serif; font-size:14px;
+            background:rgba(0,0,0,0.6); padding:8px 12px; border-radius:6px;
+            display:flex; gap:8px; align-items:center;
+        }
+        .dot { width:8px; height:8px; border-radius:50%; background:#fff; opacity:0.2; animation:blink 1s infinite; }
+        .dot:nth-child(2) { animation-delay:.15s }
+        .dot:nth-child(3) { animation-delay:.3s }
+        @keyframes blink { 0% {opacity:.2} 50% {opacity:1} 100% {opacity:.2} }
+    </style>
 </head>
-
 <body>
+    <div class="player-wrap">
+        <video id="player" autoplay muted playsinline preload="auto" crossorigin></video>
 
-  <!-- Chrome Only Modal -->
-  <div id="chromeModal" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="modal-content">
-      <h2>Please Open in Chrome</h2>
-      <p>This site is optimized for <strong>Google Chrome</strong>. Please open the link in Chrome browser for the best experience.</p>
+        <div id="spinner" class="spinner">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            <div id="spinnerText">Connecting…</div>
+        </div>
     </div>
-  </div>
 
-  <div class="shaka-video-container" data-shaka-player>
-    <video autoplay playsinline preload="metadata" poster=""></video>
-  </div>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
+    <script>
+    (function(){
+        // =======================
+        // CONFIG - change only source if needed
+        // =======================
+        const source = "https://golu.allinonereborn.fun/hls_cors.php?key=mukesh";
+        const video = document.getElementById('player');
+        const spinner = document.getElementById('spinner');
+        const spinnerText = document.getElementById('spinnerText');
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      /********** Chrome check **********/
-      const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-      if (!isChrome) {
-        const chromeModal = document.getElementById('chromeModal');
-        chromeModal.classList.remove('hidden');
-        chromeModal.setAttribute('aria-hidden', 'false');
-        return; // block video setup in non-Chrome
-      }
-
-      /********** Shaka player setup **********/
-      shaka.polyfill.installAll();
-
-      if (!shaka.Player.isBrowserSupported()) {
-        console.error('Browser not supported');
-      } else {
-        const video = document.querySelector('video');
-        const player = new shaka.Player();
-        await player.attach(video);
-
-        const container = document.querySelector('.shaka-video-container');
-        const ui = new shaka.ui.Overlay(player, container, video);
-
-        ui.configure({
-          controlPanelElements: [
-            'play_pause', 'time_and_duration', 'mute', 'volume',
-            'spacer', 'language', 'captions', 'picture_in_picture',
-            'quality', 'fullscreen'
-          ],
-          volumeBarColors: {
-            base: 'rgba(63, 187, 1, 1)',
-            level: 'rgb(255, 69, 0)'
-          },
-          seekBarColors: {
-            base: 'rgb(41, 41, 163)',
-            buffered: 'rgb(35, 99, 3)',
-            played: 'rgba(63, 187, 1, 1)'
-          }
+        // create Plyr early so controls exist immediately
+        const plyrPlayer = new Plyr(video, {
+            controls: ['play-large','play','mute','volume','settings','fullscreen','pip'],
+            i18n: { restart: 'Restart', rewind: 'Rewind {seektime}s', play: 'Play' }
         });
 
-        let drmConfig = {
-          clearKeys: {
-            "400131994b445d8c8817202248760fda": "2d56cb6f07a75b9aff165d534ae2bfc4"
-          }
-        };
-        let cookieHeader = "__hdnea__=st=1761871384~exp=1761957784~acl=/*~hmac=59a60bc137318c7b6301de87a16fca535bcff680c596a15243999ff7e4bfe0fd";
-        let streamUrl = "https://jiotvpllive.cdn.jio.com/bpk-tv/Star_Sports_HD1_Hindi_BTS/output/index.mpd";
+        // small helper to hide spinner
+        function hideSpinner() { if (spinner) spinner.style.display = 'none'; }
+        function showSpinner(text) { if (spinner) { spinner.style.display = 'flex'; spinnerText.textContent = text || 'Connecting…'; } }
 
-        try {
-          const response = await fetch('');
-          const m3uText = await response.text();
-          const lines = m3uText.split('\n');
-
-          for (let i = 0; i < lines.length; i++) {
-            if (lines[i].includes('Star_Sports_HD1')) {
-              for (let j = i - 1; j >= 0; j--) {
-                if (lines[j].startsWith('#EXTHTTP:')) {
-                  const cookieMatch = lines[j].match(/"cookie":"([^"]+)"/);
-                  if (cookieMatch) {
-                    cookieHeader = cookieMatch[1];
-                  }
-                  break;
+        // Try native HLS via hls.js
+        if (Hls.isSupported()) {
+            const hlsConfig = {
+                // faster startup / low latency tuning
+                enableWorker: true,
+                lowLatencyMode: true,
+                startLevel: -1,                 // auto
+                maxBufferLength: 8,            // reduce buffer to start faster
+                backBufferLength: 30,
+                maxBufferHole: 0.5,
+                capLevelToPlayerSize: true,
+                liveSyncDurationCount: 3,      // try keep near-live
+                manifestLoadingTimeOut: 8000,
+                levelLoadingTimeOut: 8000,
+                fragLoadingTimeOut: 10000,
+                xhrSetup: function(xhr, url) {
+                    // optional: xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
+                    // keep CORS headers untouched; adjust only if upstream needs custom headers
                 }
-              }
-              break;
+            };
+
+            const hls = new Hls(hlsConfig);
+
+            // show spinner while manifest/first frag loading
+            showSpinner('Loading manifest…');
+
+            hls.on(Hls.Events.MANIFEST_LOADING, () => { showSpinner('Loading manifest…'); });
+            hls.on(Hls.Events.MANIFEST_PARSED, (ev, data) => {
+                // try to pick best or keep automatic
+                const levels = hls.levels || [];
+                const availableHeights = levels.map(l => l.height).filter(h => !!h).sort((a,b)=>b-a);
+                if (availableHeights.length) {
+                    // set default to highest available to reduce later quality switch lag (optional)
+                    // find level index of highest
+                    const targetHeight = availableHeights[0];
+                    const idx = levels.findIndex(l => l.height === targetHeight);
+                    if (idx > -1) hls.startLevel = idx;
+                }
+
+                // start load immediately
+                hls.startLoad();
+
+                // attempt autoplay (muted allows autoplay on most browsers)
+                video.play().catch(()=>{ /* autoplay blocked — user gesture needed, but we are muted so usually allowed */ });
+            });
+
+            // hide spinner when first fragment decoded/displayed
+            hls.on(Hls.Events.FRAG_LOADED, (event, data) => {
+                // first few fragments will come; once first fragment loaded hide spinner
+                hideSpinner();
+            });
+
+            // better UX: when first frame rendered
+            hls.on(Hls.Events.FRAG_PARSING_INIT_SEGMENT, () => hideSpinner());
+
+            // error handling and auto-recover for improved availability
+            hls.on(Hls.Events.ERROR, function(event, data) {
+                console.warn('hls error', data);
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            showSpinner('Network error — retrying…');
+                            hls.startLoad(); // retry
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            showSpinner('Media error — recovering…');
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            // try to restart
+                            showSpinner('Unexpected error — reloading stream…');
+                            setTimeout(()=>{ hls.destroy(); location.reload(); }, 1200);
+                            break;
+                    }
+                }
+            });
+
+            // attach source and media
+            hls.loadSource(source);
+            hls.attachMedia(video);
+
+            // optional: keep hls levels in Plyr's quality setting (light integration)
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                try { 
+                    const levels = hls.levels || [];
+                    const qualityOptions = Array.from(new Set(levels.map(l => l.height).filter(Boolean))).sort((a,b)=>b-a);
+                    if (qualityOptions.length) {
+                        // Plyr quality config can be changed via UI options if needed
+                        // we keep forced set to false to allow auto switching for live
+                    }
+                } catch(e) {}
+            });
+
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // native HLS (Safari)
+            showSpinner('Starting native HLS…');
+            video.src = source;
+            video.addEventListener('loadedmetadata', () => {
+                hideSpinner();
+                video.play().catch(()=>{});
+            });
+        } else {
+            // no HLS support
+            document.body.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Your browser does not support HLS playback.</p>';
+        }
+
+        // ensure spinner removed if video plays
+        video.addEventListener('playing', hideSpinner);
+        video.addEventListener('error', function(){ showSpinner('Playback error — check source'); });
+
+        // extra: try resume autoplay if paused due to autoplay policy (rare because muted)
+        setTimeout(()=> {
+            if (video.paused) {
+                video.play().catch(()=>{ /* still blocked */ });
             }
-          }
-        } catch (error) {
-          console.error('Failed to fetch M3U:', error);
-        }
-
-        player.configure({
-          drm: drmConfig,
-          streaming: {
-            lowLatencyMode: true,
-            bufferingGoal: 15,
-            rebufferingGoal: 2,
-            bufferBehind: 15,
-            retryParameters: { timeout: 10000, maxAttempts: 5, baseDelay: 300, backoffFactor: 1.2 },
-            segmentRequestTimeout: 8000,
-            segmentPrefetchLimit: 2,
-            useNativeHlsOnSafari: true
-          },
-          manifest: { retryParameters: { timeout: 8000, maxAttempts: 3 } }
-        });
-
-        player.getNetworkingEngine().registerRequestFilter((type, request) => {
-          request.headers['Referer'] = 'https://www.jiotv.com/';
-          request.headers['User-Agent'] = "plaYtv/7.1.5 (Linux;Android 13) ExoPlayerLib/2.11.6";
-          request.headers['Cookie'] = cookieHeader;
-
-          if (
-            (type === shaka.net.NetworkingEngine.RequestType.MANIFEST ||
-             type === shaka.net.NetworkingEngine.RequestType.SEGMENT) &&
-            request.uris[0] && !request.uris[0].includes('__hdnea__=')
-          ) {
-            const separator = request.uris[0].includes('?') ? '&' : '?';
-            request.uris[0] += separator + cookieHeader;
-          }
-        });
-
-        try {
-          await player.load(streamUrl);
-        } catch (error) {
-          console.error('Load error:', error);
-        }
-      }
-    });
-  </script>
+        }, 700);
+    })();
+    </script>
 </body>
 </html>

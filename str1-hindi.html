@@ -1,175 +1,234 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Stream Player</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css" />
-    <style>
-        html, body { height:100%; width:100%; margin:0; background:#000; }
-        .player-wrap { height:100%; width:100%; display:flex; align-items:center; justify-content:center; position:relative; }
-        video#player { width:100%; height:100%; max-width:100%; object-fit:cover; background:#000; }
-        .spinner {
-            position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-            color:#fff; font-family:Arial, sans-serif; font-size:14px;
-            background:rgba(0,0,0,0.6); padding:8px 12px; border-radius:6px;
-            display:flex; gap:8px; align-items:center;
-        }
-        .dot { width:8px; height:8px; border-radius:50%; background:#fff; opacity:0.2; animation:blink 1s infinite; }
-        .dot:nth-child(2) { animation-delay:.15s }
-        .dot:nth-child(3) { animation-delay:.3s }
-        @keyframes blink { 0% {opacity:.2} 50% {opacity:1} 100% {opacity:.2} }
-    </style>
+  <meta charset="utf-8" />
+  <!-- viewport-fit=cover for iOS fullscreen safe area support -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Responsive Stream Player</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css" />
+
+  <style>
+    :root{
+      --bg:#000;
+      --control-size: 44px; /* base control tap target */
+    }
+    html,body{
+      height:100%;
+      width:100%;
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* full-viewport fixed container so player always fills screen and works with orientation changes */
+    .player-wrap {
+      position:fixed;
+      inset:0; /* top:0; right:0; bottom:0; left:0; */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--bg);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      box-sizing: border-box;
+      overflow:hidden;
+    }
+
+    /* keep an inner container to maintain aspect ratio if needed, and to let controls overlay */
+    .video-container {
+      width:100%;
+      height:100%;
+      max-width:100%;
+      max-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+
+    video#player {
+      width:100%;
+      height:100%;
+      max-width:100%;
+      max-height:100%;
+      /* contain = whole video visible with black bars if aspect mismatch
+         cover = fills entire area but may crop edges (uncomment if you prefer) */
+      object-fit: contain;
+      background:#000;
+      border:0;
+      display:block;
+    }
+
+    /* Plyr container must fill parent so controls position correctly */
+    .plyr {
+      width:100%;
+      height:100%;
+      display:block;
+    }
+
+    /* spinner centered and responsive */
+    .spinner {
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      color:#fff;
+      font-family: Arial, sans-serif;
+      font-size:14px;
+      background:rgba(0,0,0,0.5);
+      padding:8px 12px;
+      border-radius:8px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      z-index:40;
+      pointer-events:none;
+    }
+
+    /* smaller controls on small screens, larger on desktop */
+    @media (max-width:520px){
+      :root{ --control-size: 40px; }
+      .spinner { font-size:13px; padding:6px 10px; }
+    }
+    @media (min-width:1200px){
+      :root{ --control-size: 56px; }
+      .spinner { font-size:15px; padding:10px 14px; }
+    }
+
+    /* ensure Plyr controls are easily tappable on mobile */
+    .plyr .plyr__controls {
+      gap:8px;
+    }
+    .plyr .plyr__controls button, .plyr .plyr__controls [data-plyr="play"] {
+      min-width: var(--control-size);
+      min-height: var(--control-size);
+    }
+
+    /* full-screen styling tweaks */
+    .plyr--fullscreen {
+      background:var(--bg);
+    }
+  </style>
 </head>
 <body>
-    <div class="player-wrap">
-        <video id="player" autoplay muted playsinline preload="auto" crossorigin></video>
-
-        <div id="spinner" class="spinner">
-            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-            <div id="spinnerText">Connecting…</div>
-        </div>
+  <div class="player-wrap">
+    <div class="video-container">
+      <video id="player" autoplay muted playsinline preload="auto" crossorigin></video>
+      <div id="spinner" class="spinner" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 50 50" aria-hidden="true">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="white" stroke-width="4" stroke-opacity="0.15"></circle>
+          <path d="M45 25a20 20 0 0 0-4-11" stroke="white" stroke-width="4" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span id="spinnerText">Connecting…</span>
+      </div>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
-    <script>
-    (function(){
-        // =======================
-        // CONFIG - change only source if needed
-        // =======================
-        const source = "https://golu.allinonereborn.fun/hls_cors.php?key=mukesh";
-        const video = document.getElementById('player');
-        const spinner = document.getElementById('spinner');
-        const spinnerText = document.getElementById('spinnerText');
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
 
-        // create Plyr early so controls exist immediately
-        const plyrPlayer = new Plyr(video, {
-            controls: ['play-large','play','mute','volume','settings','fullscreen','pip'],
-            i18n: { restart: 'Restart', rewind: 'Rewind {seektime}s', play: 'Play' }
-        });
+  <script>
+  (function(){
+    // CONFIG: only change source
+    const source = "https://golu.allinonereborn.fun/hls_cors.php?key=mukesh";
+    const video = document.getElementById('player');
+    const spinner = document.getElementById('spinner');
+    const spinnerText = document.getElementById('spinnerText');
 
-        // small helper to hide spinner
-        function hideSpinner() { if (spinner) spinner.style.display = 'none'; }
-        function showSpinner(text) { if (spinner) { spinner.style.display = 'flex'; spinnerText.textContent = text || 'Connecting…'; } }
+    // instantiate Plyr early (so UI is ready)
+    const plyrPlayer = new Plyr(video, {
+      controls: ['play-large','play','mute','volume','settings','airplay','fullscreen','pip'],
+      clickToPlay: true,
+      hideControls: false
+    });
 
-        // Try native HLS via hls.js
-        if (Hls.isSupported()) {
-            const hlsConfig = {
-                // faster startup / low latency tuning
-                enableWorker: true,
-                lowLatencyMode: true,
-                startLevel: -1,                 // auto
-                maxBufferLength: 8,            // reduce buffer to start faster
-                backBufferLength: 30,
-                maxBufferHole: 0.5,
-                capLevelToPlayerSize: true,
-                liveSyncDurationCount: 3,      // try keep near-live
-                manifestLoadingTimeOut: 8000,
-                levelLoadingTimeOut: 8000,
-                fragLoadingTimeOut: 10000,
-                xhrSetup: function(xhr, url) {
-                    // optional: xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
-                    // keep CORS headers untouched; adjust only if upstream needs custom headers
-                }
-            };
+    function showSpinner(text){
+      if(spinner){ spinner.style.display = 'flex'; spinnerText.textContent = text || 'Connecting…'; }
+    }
+    function hideSpinner(){ if(spinner) spinner.style.display = 'none'; }
 
-            const hls = new Hls(hlsConfig);
+    // responsive behaviour on orientation change / resize:
+    // we can adapt player or request level changes if needed (example only)
+    function onResize(){
+      // If you prefer to force a specific aspect ratio / quality you can detect viewport here
+      // const w = window.innerWidth, h = window.innerHeight;
+      // if(w>h){ /* landscape */ } else { /* portrait */ }
+    }
+    window.addEventListener('resize', onResize, {passive:true});
+    window.addEventListener('orientationchange', onResize, {passive:true});
 
-            // show spinner while manifest/first frag loading
-            showSpinner('Loading manifest…');
+    // HLS playback
+    if (Hls.isSupported()) {
+      showSpinner('Loading manifest…');
+      const hls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: true,
+        startLevel: -1,
+        maxBufferLength: 8,
+        backBufferLength: 30,
+        capLevelToPlayerSize: true,
+        liveSyncDurationCount: 3,
+      });
 
-            hls.on(Hls.Events.MANIFEST_LOADING, () => { showSpinner('Loading manifest…'); });
-            hls.on(Hls.Events.MANIFEST_PARSED, (ev, data) => {
-                // try to pick best or keep automatic
-                const levels = hls.levels || [];
-                const availableHeights = levels.map(l => l.height).filter(h => !!h).sort((a,b)=>b-a);
-                if (availableHeights.length) {
-                    // set default to highest available to reduce later quality switch lag (optional)
-                    // find level index of highest
-                    const targetHeight = availableHeights[0];
-                    const idx = levels.findIndex(l => l.height === targetHeight);
-                    if (idx > -1) hls.startLevel = idx;
-                }
+      hls.on(Hls.Events.MANIFEST_LOADING, () => showSpinner('Loading manifest…'));
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        // give video a quick play attempt (muted allows autoplay on most browsers)
+        video.play().catch(()=>{});
+      });
 
-                // start load immediately
-                hls.startLoad();
+      // hide spinner when first fragment parsed or when playback starts
+      hls.on(Hls.Events.FRAG_LOADED, () => hideSpinner());
+      hls.on(Hls.Events.FRAG_PARSING_INIT_SEGMENT, () => hideSpinner());
+      video.addEventListener('playing', hideSpinner);
 
-                // attempt autoplay (muted allows autoplay on most browsers)
-                video.play().catch(()=>{ /* autoplay blocked — user gesture needed, but we are muted so usually allowed */ });
-            });
+      // attach and load
+      hls.loadSource(source);
+      hls.attachMedia(video);
 
-            // hide spinner when first fragment decoded/displayed
-            hls.on(Hls.Events.FRAG_LOADED, (event, data) => {
-                // first few fragments will come; once first fragment loaded hide spinner
-                hideSpinner();
-            });
-
-            // better UX: when first frame rendered
-            hls.on(Hls.Events.FRAG_PARSING_INIT_SEGMENT, () => hideSpinner());
-
-            // error handling and auto-recover for improved availability
-            hls.on(Hls.Events.ERROR, function(event, data) {
-                console.warn('hls error', data);
-                if (data.fatal) {
-                    switch (data.type) {
-                        case Hls.ErrorTypes.NETWORK_ERROR:
-                            showSpinner('Network error — retrying…');
-                            hls.startLoad(); // retry
-                            break;
-                        case Hls.ErrorTypes.MEDIA_ERROR:
-                            showSpinner('Media error — recovering…');
-                            hls.recoverMediaError();
-                            break;
-                        default:
-                            // try to restart
-                            showSpinner('Unexpected error — reloading stream…');
-                            setTimeout(()=>{ hls.destroy(); location.reload(); }, 1200);
-                            break;
-                    }
-                }
-            });
-
-            // attach source and media
-            hls.loadSource(source);
-            hls.attachMedia(video);
-
-            // optional: keep hls levels in Plyr's quality setting (light integration)
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                try { 
-                    const levels = hls.levels || [];
-                    const qualityOptions = Array.from(new Set(levels.map(l => l.height).filter(Boolean))).sort((a,b)=>b-a);
-                    if (qualityOptions.length) {
-                        // Plyr quality config can be changed via UI options if needed
-                        // we keep forced set to false to allow auto switching for live
-                    }
-                } catch(e) {}
-            });
-
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // native HLS (Safari)
-            showSpinner('Starting native HLS…');
-            video.src = source;
-            video.addEventListener('loadedmetadata', () => {
-                hideSpinner();
-                video.play().catch(()=>{});
-            });
-        } else {
-            // no HLS support
-            document.body.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Your browser does not support HLS playback.</p>';
+      // error recovery
+      hls.on(Hls.Events.ERROR, function(event, data){
+        console.warn('hls error', data);
+        if(data && data.fatal){
+          switch(data.type){
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              showSpinner('Network error — retrying…');
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              showSpinner('Media error — recovering…');
+              hls.recoverMediaError();
+              break;
+            default:
+              showSpinner('Stream error — reloading…');
+              setTimeout(()=>{ hls.destroy(); location.reload(); }, 1200);
+              break;
+          }
         }
+      });
 
-        // ensure spinner removed if video plays
-        video.addEventListener('playing', hideSpinner);
-        video.addEventListener('error', function(){ showSpinner('Playback error — check source'); });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      showSpinner('Starting native HLS…');
+      video.src = source;
+      video.addEventListener('loadedmetadata', () => {
+        hideSpinner();
+        video.play().catch(()=>{});
+      });
+    } else {
+      document.body.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Your browser does not support HLS playback.</p>';
+    }
 
-        // extra: try resume autoplay if paused due to autoplay policy (rare because muted)
-        setTimeout(()=> {
-            if (video.paused) {
-                video.play().catch(()=>{ /* still blocked */ });
-            }
-        }, 700);
-    })();
-    </script>
+    // ensure spinner removed if video plays
+    video.addEventListener('playing', hideSpinner);
+    video.addEventListener('error', () => showSpinner('Playback error — check source'));
+
+    // try autoplay again soon if still paused
+    setTimeout(()=>{ if(video.paused) video.play().catch(()=>{}); }, 700);
+  })();
+  </script>
 </body>
 </html>

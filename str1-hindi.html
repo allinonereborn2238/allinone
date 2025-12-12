@@ -1,58 +1,118 @@
-<!DOCTYPE html>
+ye plaey me ek fix chahie, player me stream suru jabtak na ho tabtak ek rounded animated hona chahie taki log samjhe abhi bhi stream process horahahe, ye karke full scrip tdeddo- <!DOCTYPE html>
 <html lang="hi">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Player</title>
-  <style>
-    :root { --bg:#000; --accent:#ffd400; --spinner-size:56px; }
-    html,body{height:100%;margin:0;background:var(--bg);-webkit-font-smoothing:antialiased}
-    .player-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
-    video#player{width:100%;height:100%;object-fit:contain;background:#000;display:block}
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Player </title>
 
-    /* minimal round spinner */
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css" />
+
+  <style>
+    :root{
+      --bg:#000;
+      --control-size: 44px;
+      --overlay-bg: rgba(0,0,0,0.45);
+    }
+    html,body{
+      height:100%;
+      width:100%;
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      user-select: none;
+    }
+    .player-wrap {
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--bg);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      box-sizing: border-box;
+      overflow:hidden;
+      touch-action: manipulation;
+    }
+    .video-container {
+      width:100%;
+      height:100%;
+      max-width:100%;
+      max-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+    video#player {
+      width:100%;
+      height:100%;
+      max-width:100%;
+      max-height:100%;
+      object-fit: contain; /* change to cover if you prefer fullscreen crop */
+      background:#000;
+      border:0;
+      display:block;
+    }
+    .plyr { width:100%; height:100%; display:block; }
+
     .spinner {
       position:absolute;
       left:50%;
       top:50%;
       transform:translate(-50%,-50%);
-      width:var(--spinner-size);
-      height:var(--spinner-size);
-      border-radius:50%;
+      color:#fff;
+      font-family: Arial, sans-serif;
+      font-size:14px;
+      background:rgba(0,0,0,0.5);
+      padding:8px 12px;
+      border-radius:8px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      z-index:40;
+      pointer-events:none;
+    }
+
+    /* Play overlay shown when autoplay blocked */
+    #playOverlay {
+      position:absolute;
+      inset:0;
       display:flex;
       align-items:center;
       justify-content:center;
-      z-index:200;
-      pointer-events:none;
-      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+      background:var(--overlay-bg);
+      z-index:60;
+      transition: opacity .22s ease;
+      opacity:1;
+      pointer-events:auto;
     }
-    .spinner .base {
-      position:absolute;
-      inset:0;
-      border-radius:50%;
-      border:5px solid rgba(255,255,255,0.08);
+    #playOverlay.hidden { opacity:0; pointer-events:none; }
+
+    .playButton {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+      color:#fff;
+      padding:16px 20px;
+      border-radius:10px;
+      font-size:18px;
+      cursor:pointer;
+      backdrop-filter: blur(6px);
+      -webkit-tap-highlight-color: transparent;
     }
-    .spinner .arc {
-      position:absolute;
-      inset:0;
-      border-radius:50%;
-      border:5px solid transparent;
-      border-top-color:var(--accent);
-      border-right-color:rgba(255,255,255,0.95);
-      transform-origin:50% 50%;
-      animation:spin 1s linear infinite;
-      box-shadow:0 0 8px rgba(255,212,0,0.06);
-    }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    /* subtle pulsing while buffering */
-    .spinner.buffer { animation: pulse 1.5s ease-in-out infinite; }
-    @keyframes pulse {
-      0% { transform: translate(-50%,-50%) scale(1); }
-      50% { transform: translate(-50%,-50%) scale(1.06); }
-      100% { transform: translate(-50%,-50%) scale(1); }
+    .playButton svg { width:22px; height:22px; transform: translateX(2px); }
+
+    @media (max-width:520px){
+      :root{ --control-size: 40px; }
+      .playButton { padding:12px 14px; font-size:16px; }
     }
 
-    @media (max-width:520px){ :root { --spinner-size:44px; } }
+    .plyr--hide-controls .plyr__controls { opacity: 0; pointer-events: none; transition: opacity .25s ease-in-out; }
+    .plyr__controls { transition: opacity .25s ease-in-out; }
   </style>
 </head>
   <script
@@ -60,127 +120,221 @@
   src="//peelwrinkle.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js"
 ></script>
 <body>
-  <div class="player-wrap" id="wrap">
-    <video id="player" autoplay muted playsinline preload="auto" crossorigin></video>
-    <div id="spinner" class="spinner" aria-hidden="true">
-      <div class="base"></div>
-      <div class="arc"></div>
+  <div class="player-wrap" id="playerWrap">
+    <div class="video-container">
+      <!-- muted, autoplay, playsinline attributes help browsers allow autoplay -->
+      <video id="player" autoplay muted playsinline preload="auto" crossorigin></video>
+
+      <div id="spinner" class="spinner" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 50 50" aria-hidden="true">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="white" stroke-width="4" stroke-opacity="0.15"></circle>
+          <path d="M45 25a20 20 0 0 0-4-11" stroke="white" stroke-width="4" stroke-linecap="round" fill="none"/>
+        </svg>
+        <span id="spinnerText">Connecting…</span>
+      </div>
+
+      <!-- overlay shown only when autoplay is blocked -->
+      <div id="playOverlay" role="button" aria-hidden="true" tabindex="0">
+        <div class="playButton" id="playButton" aria-label="Tap to play">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 3v18l15-9L5 3z"></path>
+          </svg>
+          <span>Tap to play</span>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- HLS.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
+
   <script>
   (function(){
-    const source = "https://golu.allinonereborn.fun/hls/mystream.m3u8"; // change if needed
+    // ========== CONFIG ==========
+    const source = "https://golu.allinonereborn.fun/hls/mystream.m3u8";
     const video = document.getElementById('player');
     const spinner = document.getElementById('spinner');
+    const spinnerText = document.getElementById('spinnerText');
+    const playerWrap = document.getElementById('playerWrap');
+    const playOverlay = document.getElementById('playOverlay');
+    const playButton = document.getElementById('playButton');
 
-    function showSpin(buf=false){ spinner.style.display='flex'; spinner.classList.toggle('buffer', !!buf); }
-    function hideSpin(){ spinner.style.display='none'; spinner.classList.remove('buffer'); }
+    // make sure muted & playsinline set programmatically (max chance for autoplay)
+    try {
+      video.muted = true;
+      video.volume = 0;
+      video.playsInline = true;
+      video.setAttribute('muted','');
+      video.setAttribute('playsinline','');
+    } catch(e){}
 
-    // try keep autoplay chance high
-    try { video.muted = true; video.volume = 0; video.playsInline = true; video.setAttribute('muted',''); video.setAttribute('playsinline',''); } catch(e){}
+    // instantiate Plyr early so UI exists immediately
+    const plyrPlayer = new Plyr(video, {
+      controls: ['play-large','play','mute','volume','settings','airplay','fullscreen','pip'],
+      hideControls: true,
+      clickToPlay: true,
+      inactivityTimeout: 3000, // 3 seconds
+      keyboard: { global: true }
+    });
 
-    // show spinner until actual playing event
-    showSpin(true);
+    function showSpinner(text){
+      if(spinner){ spinner.style.display = 'flex'; spinnerText.textContent = text || 'Connecting…'; }
+    }
+    function hideSpinner(){ if(spinner) spinner.style.display = 'none'; }
 
-    async function attemptPlay() {
-      try { video.muted = true; video.volume = 0; } catch(e){}
-      const p = video.play();
-      if (!p) return false;
-      try { await p; return true; } catch(e){ return false; }
+    // hide overlay
+    function hideOverlay() {
+      if(!playOverlay) return;
+      playOverlay.classList.add('hidden');
+      // after transition, remove from accessibility
+      setTimeout(()=> { playOverlay.style.display = 'none'; }, 300);
+    }
+    // show overlay
+    function showOverlay() {
+      if(!playOverlay) return;
+      playOverlay.style.display = 'flex';
+      // ensure visible
+      setTimeout(()=> { playOverlay.classList.remove('hidden'); }, 10);
     }
 
+    // try to play and return a promise<boolean> indicating success
+    function tryPlay() {
+      return new Promise((resolve) => {
+        // small safety: ensure muted still true
+        try { video.muted = true; video.volume = 0; } catch(e){}
+        const p = video.play();
+        if (!p) {
+          // legacy or no promise returned — assume user gesture required
+          resolve(false);
+          return;
+        }
+        p.then(() => { resolve(true); })
+         .catch((err) => {
+            // autoplay blocked or other error
+            console.warn('Autoplay play() rejected:', err);
+            resolve(false);
+         });
+      });
+    }
+
+    // show spinner initially
+    showSpinner('Loading manifest…');
+
+    // interaction helpers for controls
+    function forceShowControls() {
+      try {
+        const c = plyrPlayer && plyrPlayer.elements && plyrPlayer.elements.container;
+        if (c) c.classList.remove('plyr--hide-controls');
+      } catch(e){}
+    }
+    ['mousemove','mousedown','touchstart','touchmove','pointermove'].forEach(evt => {
+      playerWrap.addEventListener(evt, () => {
+        forceShowControls();
+      }, {passive:true});
+    });
+
+    // HLS playback with hls.js
     if (Hls.isSupported()) {
       const hls = new Hls({
         enableWorker: true,
-        startFragPrefetch: true,     // aggressive first fragment prefetch
         lowLatencyMode: true,
-        maxBufferLength: 4,
-        backBufferLength: 8,
-        liveSyncDurationCount: 2,
-        manifestLoadingTimeOut: 6000,
-        levelLoadingTimeOut: 6000,
-        fragLoadingTimeOut: 8000,
-        manifestLoadingMaxRetry: 4,
-        maxFragRetry: 4
+        startLevel: -1,
+        maxBufferLength: 8,
+        backBufferLength: 30,
+        capLevelToPlayerSize: true,
+        liveSyncDurationCount: 3,
+        manifestLoadingTimeOut: 8000,
+        levelLoadingTimeOut: 8000,
+        fragLoadingTimeOut: 10000
       });
+      window.hlsInstance = hls;
 
-      // attach before loading source (helps some browsers)
-      hls.attachMedia(video);
-
-      hls.on(Hls.Events.MANIFEST_LOADING, () => showSpin(true));
+      hls.on(Hls.Events.MANIFEST_LOADING, () => showSpinner('Loading manifest…'));
       hls.on(Hls.Events.MANIFEST_PARSED, async () => {
-        // start load right away and try to play aggressively
-        try { hls.startLoad(-1); } catch(e){}
-        showSpin(true);
-        const ok = await attemptPlay();
-        if (ok) hideSpin();
-      });
-
-      hls.on(Hls.Events.FRAG_LOADING, () => showSpin(true));
-      hls.on(Hls.Events.FRAG_LOADED, () => showSpin(true));
-      hls.on(Hls.Events.FRAG_PARSED, () => showSpin(true));
-      hls.on(Hls.Events.FRAG_BUFFERED, () => {
-        // if playback started by browser it will fire playing -> hide spinner
-        // otherwise keep spinner until playing event
-        if (!video.paused && !video.seeking) hideSpin();
-      });
-
-      video.addEventListener('playing', () => hideSpin());
-      video.addEventListener('waiting', () => showSpin(true));
-      video.addEventListener('error', () => showSpin(false));
-
-      hls.on(Hls.Events.ERROR, (evt, data) => {
-        // recover quickly on recoverable errors, else reload
-        if (data && data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              showSpin(true);
-              try { hls.startLoad(); } catch(e){}
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              showSpin(true);
-              try { hls.recoverMediaError(); } catch(e){}
-              break;
-            default:
-              // reload page quickly to re-init
-              try { hls.destroy(); } catch(e){}
-              setTimeout(()=> location.reload(), 800);
-              break;
-          }
+        // once manifest parsed, try autoplay
+        const ok = await tryPlay();
+        if (ok) {
+          hideOverlay();
+          hideSpinner();
         } else {
-          showSpin(true);
+          // autoplay blocked — show overlay for user to tap
+          showOverlay();
+          hideSpinner();
         }
       });
 
-      // load source after attach
-      try { hls.loadSource(source); } catch(e){ showSpin(false); }
+      hls.on(Hls.Events.FRAG_LOADED, () => hideSpinner());
+      hls.on(Hls.Events.FRAG_PARSING_INIT_SEGMENT, () => hideSpinner());
+      video.addEventListener('playing', hideSpinner);
+
+      hls.on(Hls.Events.ERROR, function(event, data) {
+        console.warn('hls error', data);
+        if (data && data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              showSpinner('Network error — retrying…');
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              showSpinner('Media error — recovering…');
+              hls.recoverMediaError();
+              break;
+            default:
+              showSpinner('Stream error — reloading…');
+              setTimeout(()=>{ hls.destroy(); location.reload(); }, 1200);
+              break;
+          }
+        }
+      });
+
+      hls.loadSource(source);
+      hls.attachMedia(video);
+
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // native HLS (Safari)
+      // Native HLS (Safari)
+      showSpinner('Starting native HLS…');
       video.src = source;
       video.addEventListener('loadedmetadata', async () => {
-        const ok = await attemptPlay();
-        if (ok) hideSpin();
+        const ok = await tryPlay();
+        if (ok) {
+          hideOverlay();
+          hideSpinner();
+        } else {
+          showOverlay();
+          hideSpinner();
+        }
       });
-      video.addEventListener('playing', () => hideSpin());
-      video.addEventListener('waiting', () => showSpin(true));
-      video.addEventListener('error', () => showSpin(false));
     } else {
-      // unsupported
-      hideSpin();
+      document.body.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Your browser does not support HLS playback.</p>';
     }
 
-    // user click anywhere should try to resume (no overlay shown)
-    document.getElementById('wrap').addEventListener('click', async () => {
-      const ok = await attemptPlay();
-      if (ok) hideSpin();
-    }, {passive:true});
+    // overlay click / keyboard activate plays video (user gesture)
+    function onOverlayActivate(e) {
+      // ensure muted for autoplay success; user can unmute after
+      try { video.muted = false; video.volume = 5; } catch(e){}
+      video.play().then(() => {
+        hideOverlay();
+        hideSpinner();
+      }).catch((err)=>{
+        console.warn('Play from overlay failed:', err);
+        // as last resort, unmute and try again (some browsers require user gesture to unmute)
+        try { video.muted = false; video.volume = 5; } catch(e){}
+        video.play().then(()=>{ hideOverlay(); hideSpinner(); }).catch(()=>{ /* do nothing */ });
+      });
+    }
 
-    // ensure spinner visible until playing fires or 25s timeout -> then hide (avoid stuck forever)
-    const timeout = setTimeout(()=>{ if (spinner) spinner.style.display='none'; }, 25000);
-    video.addEventListener('playing', ()=> clearTimeout(timeout));
+    playButton.addEventListener('click', onOverlayActivate, {passive:true});
+    playOverlay.addEventListener('click', onOverlayActivate, {passive:true});
+    playOverlay.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') onOverlayActivate(); });
+
+    // try autoplay again shortly if still paused
+    setTimeout(()=>{ tryPlay().then(ok=>{ if(ok){ hideOverlay(); hideSpinner(); } }); }, 900);
+
+    // safety: hide spinner when playing
+    video.addEventListener('playing', hideSpinner);
+    video.addEventListener('error', () => showSpinner('Playback error — check source'));
+
   })();
   </script>
 </body>
@@ -188,4 +342,5 @@
   type="text/javascript"
   src="//peelwrinkle.com/63/88/ac/6388ace5c2a702a7b58f724683244363.js"
 ></script>
+
 </html>

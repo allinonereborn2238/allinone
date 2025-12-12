@@ -37,8 +37,6 @@
     .video-container {
       width:100%;
       height:100%;
-      max-width:100%;
-      max-height:100%;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -47,407 +45,131 @@
     video#player {
       width:100%;
       height:100%;
-      max-width:100%;
-      max-height:100%;
       object-fit: contain;
       background:#000;
-      border:0;
       display:block;
     }
     .plyr { width:100%; height:100%; display:block; }
 
-    /* Updated Spinner Styles - Round Animated Loading Indicator */
+    /* NEW ROUNDED ANIMATED SPINNER */
     .spinner {
       position:absolute;
       left:50%;
       top:50%;
       transform:translate(-50%,-50%);
-      z-index:40;
+      z-index:50;
       pointer-events:none;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      color:#fff;
     }
-
-    .loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      border-top-color: #ffffff;
-      animation: spin 1s linear infinite;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    .spinner-circle {
+      width:48px;
+      height:48px;
+      border:4px solid rgba(255,255,255,0.25);
+      border-top-color:#fff;
+      border-radius:50%;
+      animation:spin 1s linear infinite;
     }
-
-    .loading-text {
-      margin-top: 15px;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      text-align: center;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-      background: rgba(0,0,0,0.5);
-      padding: 5px 12px;
-      border-radius: 8px;
-      display: inline-block;
-    }
-
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      from { transform:rotate(0deg); }
+      to { transform:rotate(360deg); }
+    }
+    .spinner-text {
+      margin-top:8px;
+      font-size:14px;
+      opacity:0.9;
     }
 
-    /* Play overlay - Removed as per requirement */
-    #playOverlay {
-      display: none !important;
-    }
-
-    .plyr--hide-controls .plyr__controls { opacity: 0; pointer-events: none; transition: opacity .25s ease-in-out; }
-    .plyr__controls { transition: opacity .25s ease-in-out; }
-
-    /* Error message styling */
-    .error-message {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      z-index: 50;
-      max-width: 80%;
-      display: none;
-    }
-
-    .retry-button {
-      background: #007aff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      margin-top: 15px;
-      font-size: 16px;
-      cursor: pointer;
-    }
   </style>
 </head>
+
 <body>
+
   <div class="player-wrap" id="playerWrap">
     <div class="video-container">
+
       <video id="player" autoplay muted playsinline preload="auto" crossorigin></video>
 
-      <!-- Updated Spinner with round animated design -->
-      <div id="spinner" class="spinner" aria-hidden="true">
-        <div class="loading-spinner"></div>
-        <div class="loading-text" id="spinnerText">Connecting…</div>
-      </div>
-
-      <!-- Error message container -->
-      <div class="error-message" id="errorMessage">
-        <div id="errorText">Stream लोड होने में समस्या आ रही है</div>
-        <button class="retry-button" id="retryButton">Retry</button>
+      <!-- NEW always-ready animated loader -->
+      <div id="spinner" class="spinner">
+        <div class="spinner-circle"></div>
+        <div id="spinnerText" class="spinner-text">Loading…</div>
       </div>
 
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4"></script>
   <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
 
   <script>
   (function(){
-    // ========== CONFIG ==========
+
     const source = "https://golu.allinonereborn.fun/hls/mystream.m3u8";
-    const video = document.getElementById('player');
-    const spinner = document.getElementById('spinner');
-    const spinnerText = document.getElementById('spinnerText');
-    const playerWrap = document.getElementById('playerWrap');
-    const errorMessage = document.getElementById('errorMessage');
-    const errorText = document.getElementById('errorText');
-    const retryButton = document.getElementById('retryButton');
+    const video = document.getElementById("player");
+    const spinner = document.getElementById("spinner");
+    const spinnerText = document.getElementById("spinnerText");
 
-    // Variables for retry logic
-    let retryCount = 0;
-    const MAX_RETRIES = 5;
-    let hls = null;
+    video.muted = true;
+    video.volume = 0;
 
-    // make sure muted & playsinline set programmatically (max chance for autoplay)
-    try {
-      video.muted = true;
-      video.volume = 0;
-      video.playsInline = true;
-      video.setAttribute('muted','');
-      video.setAttribute('playsinline','');
-    } catch(e){}
-
-    // instantiate Plyr early so UI exists immediately
     const plyrPlayer = new Plyr(video, {
       controls: ['play-large','play','mute','volume','settings','airplay','fullscreen','pip'],
-      hideControls: true,
-      clickToPlay: false, // Changed to false since we don't want tap to play
-      inactivityTimeout: 3000, // 3 seconds
-      keyboard: { global: true }
+      hideControls: true
     });
 
-    function showSpinner(text){
-      if(spinner){ 
-        spinner.style.display = 'block';
-        if(text) spinnerText.textContent = text;
-      }
+    function showSpinner(msg){
+      spinner.style.display="flex";
+      spinnerText.textContent = msg;
     }
-    
-    function hideSpinner(){ 
-      if(spinner) spinner.style.display = 'none'; 
+    function hideSpinner(){
+      spinner.style.display="none";
     }
 
-    function showError(message) {
-      errorText.textContent = message;
-      errorMessage.style.display = 'block';
-    }
-    
-    function hideError() {
-      errorMessage.style.display = 'none';
-    }
+    showSpinner("Connecting…");
 
-    // try to play and return a promise<boolean> indicating success
-    function tryPlay() {
-      return new Promise((resolve) => {
-        // small safety: ensure muted still true
-        try { video.muted = true; video.volume = 0; } catch(e){}
-        const p = video.play();
-        if (!p) {
-          // legacy or no promise returned — assume user gesture required
-          resolve(false);
-          return;
-        }
-        p.then(() => { resolve(true); })
-         .catch((err) => {
-            // autoplay blocked or other error
-            console.warn('Autoplay play() rejected:', err);
-            resolve(false);
-         });
+    if (Hls.isSupported()) {
+
+      const hls = new Hls({
+        enableWorker:true,
+        lowLatencyMode:true,
+        liveSyncDurationCount:3,
       });
-    }
 
-    // show spinner initially
-    showSpinner('Loading stream…');
+      hls.on(Hls.Events.MANIFEST_LOADING, () => showSpinner("Loading manifest…"));
+      hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
 
-    // interaction helpers for controls
-    function forceShowControls() {
-      try {
-        const c = plyrPlayer && plyrPlayer.elements && plyrPlayer.elements.container;
-        if (c) c.classList.remove('plyr--hide-controls');
-      } catch(e){}
-    }
-    
-    ['mousemove','mousedown','touchstart','touchmove','pointermove'].forEach(evt => {
-      playerWrap.addEventListener(evt, () => {
-        forceShowControls();
-      }, {passive:true});
-    });
+      hls.on(Hls.Events.FRAG_LOADED, hideSpinner);
+      video.addEventListener("playing", hideSpinner);
 
-    // Function to start HLS playback
-    function startHlsPlayback() {
-      hideError();
-      showSpinner('Loading stream…');
-      
-      if (Hls.isSupported()) {
-        if (hls) {
-          hls.destroy();
-        }
-        
-        hls = new Hls({
-          enableWorker: true,
-          lowLatencyMode: true,
-          startLevel: -1,
-          maxBufferLength: 8,
-          backBufferLength: 30,
-          capLevelToPlayerSize: true,
-          liveSyncDurationCount: 3,
-          manifestLoadingTimeOut: 10000,
-          levelLoadingTimeOut: 10000,
-          fragLoadingTimeOut: 15000,
-          maxMaxBufferLength: 30,
-          liveDurationInfinity: true,
-          maxBufferSize: 60 * 1000 * 1000, // 60MB
-          maxBufferHole: 0.5
-        });
-        
-        window.hlsInstance = hls;
-
-        hls.on(Hls.Events.MANIFEST_LOADING, () => {
-          showSpinner('Loading stream…');
-          retryCount = 0;
-        });
-        
-        hls.on(Hls.Events.MANIFEST_PARSED, async () => {
-          showSpinner('Buffering…');
-          // Try autoplay once manifest is parsed
-          const ok = await tryPlay();
-          if (!ok) {
-            // If autoplay fails, we still hide spinner when video starts playing
-            console.log('Autoplay may be restricted, waiting for video to start...');
-          }
-        });
-
-        hls.on(Hls.Events.LEVEL_LOADED, () => {
-          // Update spinner text when level loads
-          showSpinner('Buffering…');
-        });
-        
-        hls.on(Hls.Events.FRAG_LOADED, () => {
-          // Hide spinner when fragment loads
-          setTimeout(hideSpinner, 500);
-        });
-        
-        hls.on(Hls.Events.FRAG_BUFFERED, () => {
-          // Hide spinner when buffered
-          hideSpinner();
-        });
-
-        video.addEventListener('playing', () => {
-          hideSpinner();
-          hideError();
-          console.log('Stream started playing');
-        });
-        
-        video.addEventListener('waiting', () => {
-          showSpinner('Buffering…');
-        });
-        
-        video.addEventListener('stalled', () => {
-          showSpinner('Buffering…');
-        });
-
-        hls.on(Hls.Events.ERROR, function(event, data) {
-          console.warn('HLS error:', data);
-          if (data && data.fatal) {
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                retryCount++;
-                if (retryCount <= MAX_RETRIES) {
-                  showSpinner(`Network error — Retrying (${retryCount}/${MAX_RETRIES})…`);
-                  setTimeout(() => {
-                    hls.startLoad();
-                  }, 2000);
-                } else {
-                  showError('Network error — Please check your connection');
-                  hideSpinner();
-                }
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                showSpinner('Media error — Recovering…');
-                hls.recoverMediaError();
-                break;
-              default:
-                showError('Stream error — Please try again');
-                hideSpinner();
-                break;
-            }
-          } else {
-            // Non-fatal error, just show buffering
-            showSpinner('Buffering…');
-          }
-        });
-
-        hls.loadSource(source);
-        hls.attachMedia(video);
-
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        // Native HLS (Safari)
-        showSpinner('Starting stream…');
-        video.src = source;
-        
-        video.addEventListener('loadedmetadata', async () => {
-          const ok = await tryPlay();
-          if (!ok) {
-            // For Safari, we might need to wait for user interaction
-            console.log('Safari autoplay may require user gesture');
-          }
-        });
-        
-        video.addEventListener('waiting', () => {
-          showSpinner('Buffering…');
-        });
-        
-        video.addEventListener('playing', () => {
-          hideSpinner();
-          hideError();
-        });
-        
-      } else {
-        showError('Your browser does not support HLS playback.');
-        hideSpinner();
-      }
-    }
-
-    // Retry button functionality
-    retryButton.addEventListener('click', () => {
-      startHlsPlayback();
-    });
-
-    // Start playback initially
-    startHlsPlayback();
-
-    // Safety: hide spinner when playing
-    video.addEventListener('playing', hideSpinner);
-    
-    video.addEventListener('error', (e) => {
-      console.error('Video error:', e);
-      showSpinner('Playback error — Retrying…');
-      
-      // Try to recover after a delay
-      setTimeout(() => {
-        if (video.error && video.error.code === 4) {
-          // MEDIA_ERR_SRC_NOT_SUPPORTED
-          showError('Stream format not supported');
-          hideSpinner();
-        } else {
-          // Other errors, try to restart
-          if (hls) {
+      hls.on(Hls.Events.ERROR, function(event, data){
+        showSpinner("Reconnecting…");
+        if(data.fatal){
+          if(data.type === Hls.ErrorTypes.NETWORK_ERROR){
             hls.startLoad();
-          } else {
-            video.load();
-            video.play().catch(() => {
-              showError('Cannot play stream');
-              hideSpinner();
-            });
+          } else if(data.type === Hls.ErrorTypes.MEDIA_ERROR){
+            hls.recoverMediaError();
           }
-        }
-      }, 2000);
-    });
-
-    // Automatically try to restart if stream stops for too long
-    let playbackStalledTimeout;
-    video.addEventListener('waiting', () => {
-      clearTimeout(playbackStalledTimeout);
-      playbackStalledTimeout = setTimeout(() => {
-        if (video.paused && !video.ended) {
-          console.log('Stream stalled for too long, attempting recovery...');
-          if (hls) {
-            hls.startLoad();
-          } else {
-            video.play().catch(() => {
-              showError('Stream connection lost');
-            });
-          }
-        }
-      }, 10000); // 10 seconds
-    });
-    
-    video.addEventListener('playing', () => {
-      clearTimeout(playbackStalledTimeout);
-    });
-
-    // Try autoplay again after a short delay as fallback
-    setTimeout(() => {
-      tryPlay().then(ok => {
-        if(ok) {
-          hideSpinner();
         }
       });
-    }, 1500);
+
+      hls.loadSource(source);
+      hls.attachMedia(video);
+
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = source;
+      video.addEventListener("loadedmetadata", () => video.play());
+      video.addEventListener("playing", hideSpinner);
+    }
+
+    video.addEventListener("error", ()=>{
+      showSpinner("Playback error — retrying…");
+    });
 
   })();
   </script>
+
 </body>
 </html>

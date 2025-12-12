@@ -1,175 +1,160 @@
-<!DOCTYPE html>
-<html lang="hi">
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@allinone_reborn</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css" />
+  <!-- JW Player Library -->
+  <script src="https://cdn.jwplayer.com/libraries/IDzF9Zmk.js"></script>
 
   <style>
-    :root{
-      --bg:#000;
-      --control-size: 44px;
-      --overlay-bg: rgba(0,0,0,0.45);
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: Inter, system-ui, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
-    html,body{
-      height:100%;
-      width:100%;
-      margin:0;
-      padding:0;
-      background:var(--bg);
-      -webkit-font-smoothing:antialiased;
-      user-select: none;
-    }
-    .player-wrap {
-      position:fixed;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:var(--bg);
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+
+    .main-container {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
       box-sizing: border-box;
-      overflow:hidden;
-      touch-action: manipulation;
-    }
-    .video-container {
-      width:100%;
-      height:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      position:relative;
-    }
-    video#player {
-      width:100%;
-      height:100%;
-      object-fit: contain;
-      background:#000;
-      display:block;
-    }
-    .plyr { width:100%; height:100%; display:block; }
-
-    /* NEW ROUNDED ANIMATED SPINNER */
-    .spinner {
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%);
-      z-index:50;
-      pointer-events:none;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      color:#fff;
-    }
-    .spinner-circle {
-      width:48px;
-      height:48px;
-      border:4px solid rgba(255,255,255,0.25);
-      border-top-color:#fff;
-      border-radius:50%;
-      animation:spin 1s linear infinite;
-    }
-    @keyframes spin {
-      from { transform:rotate(0deg); }
-      to { transform:rotate(360deg); }
-    }
-    .spinner-text {
-      margin-top:8px;
-      font-size:14px;
-      opacity:0.9;
     }
 
+    .player-container {
+      width: 100%;
+      position: relative;
+    }
+
+    .player-wrap {
+      width: 100%;
+      aspect-ratio: 16/9;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #my-jwplayer {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .ad-container {
+      width: 100%;
+      overflow: hidden;
+      margin: 5px 0;
+    }
+
+    .ad-box {
+      background: #111;
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    @media (max-width: 600px) {
+      .ad-box {
+        min-height: 50px;
+      }
+    }
   </style>
 </head>
 
+<script type='text/javascript' src='//peelwrinkle.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js'></script>
+
 <body>
 
-  <div class="player-wrap" id="playerWrap">
-    <div class="video-container">
+<div class="main-container">
 
-      <video id="player" autoplay muted playsinline preload="auto" crossorigin></video>
-
-      <!-- NEW always-ready animated loader -->
-      <div id="spinner" class="spinner">
-        <div class="spinner-circle"></div>
-        <div id="spinnerText" class="spinner-text">Loading…</div>
-      </div>
-
+  <!-- Top Ad -->
+  <div class="ad-container">
+    <div class="ad-box">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//peelwrinkle.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4"></script>
-  <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
+  <!-- Player -->
+  <div class="player-container">
+    <div class="player-wrap">
+      <div id="my-jwplayer"></div>
+    </div>
+  </div>
 
-  <script>
-  (function(){
+  <!-- Bottom Ad -->
+  <div class="ad-container">
+    <div class="ad-box">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//peelwrinkle.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
+    </div>
+  </div>
 
-    const source = "https://golu.allinonereborn.fun/hls/mystream.m3u8";
-    const video = document.getElementById("player");
-    const spinner = document.getElementById("spinner");
-    const spinnerText = document.getElementById("spinnerText");
+</div>
 
-    video.muted = true;
-    video.volume = 0;
+<script>
+(function(){
 
-    const plyrPlayer = new Plyr(video, {
-      controls: ['play-large','play','mute','volume','settings','airplay','fullscreen','pip'],
-      hideControls: true
-    });
+  const urlParams = new URLSearchParams(window.location.search);
+  let streamUrl = urlParams.get('url');
 
-    function showSpinner(msg){
-      spinner.style.display="flex";
-      spinnerText.textContent = msg;
-    }
-    function hideSpinner(){
-      spinner.style.display="none";
-    }
+  // DEFAULT STREAM URL IF NO PARAM FOUND
+  if (!streamUrl) {
+    streamUrl = "https://golu.allinonereborn.fun/hls/mystream.m3u8";
+  }
 
-    showSpinner("Connecting…");
+  // FIX URL FORMAT
+  streamUrl = decodeURIComponent(streamUrl);
+  streamUrl = streamUrl.replace(/\\\//g, "/");
+  streamUrl = streamUrl.replace(/\\\\/g, "");
 
-    if (Hls.isSupported()) {
+  jwplayer("my-jwplayer").setup({
+    file: streamUrl,
+    type: "hls",
+    width: "100%",
+    aspectratio: "16:9",
+    autostart: true,
+    mute: false,
+    controls: true,
+    preload: "auto",
+    stretching: "uniform",
+    skin: { name: "seven" }
+  });
 
-      const hls = new Hls({
-        enableWorker:true,
-        lowLatencyMode:true,
-        liveSyncDurationCount:3,
-      });
-
-      hls.on(Hls.Events.MANIFEST_LOADING, () => showSpinner("Loading manifest…"));
-      hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-
-      hls.on(Hls.Events.FRAG_LOADED, hideSpinner);
-      video.addEventListener("playing", hideSpinner);
-
-      hls.on(Hls.Events.ERROR, function(event, data){
-        showSpinner("Reconnecting…");
-        if(data.fatal){
-          if(data.type === Hls.ErrorTypes.NETWORK_ERROR){
-            hls.startLoad();
-          } else if(data.type === Hls.ErrorTypes.MEDIA_ERROR){
-            hls.recoverMediaError();
-          }
-        }
-      });
-
-      hls.loadSource(source);
-      hls.attachMedia(video);
-
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = source;
-      video.addEventListener("loadedmetadata", () => video.play());
-      video.addEventListener("playing", hideSpinner);
-    }
-
-    video.addEventListener("error", ()=>{
-      showSpinner("Playback error — retrying…");
-    });
-
-  })();
-  </script>
+})();
+</script>
 
 </body>
 </html>

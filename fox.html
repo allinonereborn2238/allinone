@@ -1,346 +1,160 @@
-<!DOCTYPE html>
-<html lang="hi">
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Player </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>@allinone_reborn</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.css" />
+  <!-- JW Player Library -->
+  <script src="https://cdn.jwplayer.com/libraries/IDzF9Zmk.js"></script>
 
   <style>
-    :root{
-      --bg:#000;
-      --control-size: 44px;
-      --overlay-bg: rgba(0,0,0,0.45);
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: Inter, system-ui, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
-    html,body{
-      height:100%;
-      width:100%;
-      margin:0;
-      padding:0;
-      background:var(--bg);
-      -webkit-font-smoothing:antialiased;
-      user-select: none;
-    }
-    .player-wrap {
-      position:fixed;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:var(--bg);
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+
+    .main-container {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
       box-sizing: border-box;
-      overflow:hidden;
-      touch-action: manipulation;
-    }
-    .video-container {
-      width:100%;
-      height:100%;
-      max-width:100%;
-      max-height:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      position:relative;
-    }
-    video#player {
-      width:100%;
-      height:100%;
-      max-width:100%;
-      max-height:100%;
-      object-fit: contain; /* change to cover if you prefer fullscreen crop */
-      background:#000;
-      border:0;
-      display:block;
-    }
-    .plyr { width:100%; height:100%; display:block; }
-
-    .spinner {
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%);
-      color:#fff;
-      font-family: Arial, sans-serif;
-      font-size:14px;
-      background:rgba(0,0,0,0.5);
-      padding:8px 12px;
-      border-radius:8px;
-      display:flex;
-      gap:8px;
-      align-items:center;
-      z-index:40;
-      pointer-events:none;
     }
 
-    /* Play overlay shown when autoplay blocked */
-    #playOverlay {
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:var(--overlay-bg);
-      z-index:60;
-      transition: opacity .22s ease;
-      opacity:1;
-      pointer-events:auto;
-    }
-    #playOverlay.hidden { opacity:0; pointer-events:none; }
-
-    .playButton {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:12px;
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.12);
-      color:#fff;
-      padding:16px 20px;
-      border-radius:10px;
-      font-size:18px;
-      cursor:pointer;
-      backdrop-filter: blur(6px);
-      -webkit-tap-highlight-color: transparent;
-    }
-    .playButton svg { width:22px; height:22px; transform: translateX(2px); }
-
-    @media (max-width:520px){
-      :root{ --control-size: 40px; }
-      .playButton { padding:12px 14px; font-size:16px; }
+    .player-container {
+      width: 100%;
+      position: relative;
     }
 
-    .plyr--hide-controls .plyr__controls { opacity: 0; pointer-events: none; transition: opacity .25s ease-in-out; }
-    .plyr__controls { transition: opacity .25s ease-in-out; }
+    .player-wrap {
+      width: 100%;
+      aspect-ratio: 16/9;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #my-jwplayer {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .ad-container {
+      width: 100%;
+      overflow: hidden;
+      margin: 5px 0;
+    }
+
+    .ad-box {
+      background: #111;
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    @media (max-width: 600px) {
+      .ad-box {
+        min-height: 50px;
+      }
+    }
   </style>
 </head>
-  <script
-  type="text/javascript"
-  src="//peelwrinkle.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js"
-></script>
+
+<script type='text/javascript' src='//peelwrinkle.com/37/d7/1a/37d71a290dde379f3d1016fe3009fb4b.js'></script>
+
 <body>
-  <div class="player-wrap" id="playerWrap">
-    <div class="video-container">
-      <!-- muted, autoplay, playsinline attributes help browsers allow autoplay -->
-      <video id="player" autoplay muted playsinline preload="auto" crossorigin></video>
 
-      <div id="spinner" class="spinner" aria-hidden="true">
-        <svg width="18" height="18" viewBox="0 0 50 50" aria-hidden="true">
-          <circle cx="25" cy="25" r="20" fill="none" stroke="white" stroke-width="4" stroke-opacity="0.15"></circle>
-          <path d="M45 25a20 20 0 0 0-4-11" stroke="white" stroke-width="4" stroke-linecap="round" fill="none"/>
-        </svg>
-        <span id="spinnerText">Connecting…</span>
-      </div>
+<div class="main-container">
 
-      <!-- overlay shown only when autoplay is blocked -->
-      <div id="playOverlay" role="button" aria-hidden="true" tabindex="0">
-        <div class="playButton" id="playButton" aria-label="Tap to play">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M5 3v18l15-9L5 3z"></path>
-          </svg>
-          <span>Tap to play</span>
-        </div>
-      </div>
-
+  <!-- Top Ad -->
+  <div class="ad-container">
+    <div class="ad-box">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//peelwrinkle.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.4/dist/hls.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/plyr@3.6.12/dist/plyr.min.js"></script>
+  <!-- Player -->
+  <div class="player-container">
+    <div class="player-wrap">
+      <div id="my-jwplayer"></div>
+    </div>
+  </div>
 
-  <script>
-  (function(){
-    // ========== CONFIG ==========
-    const source = "https://hugh.cdn.rumble.cloud/live/kd32s8ur/slot-125/96cc-10xy_1080p/chunklist_DVR.m3u8";
-    const video = document.getElementById('player');
-    const spinner = document.getElementById('spinner');
-    const spinnerText = document.getElementById('spinnerText');
-    const playerWrap = document.getElementById('playerWrap');
-    const playOverlay = document.getElementById('playOverlay');
-    const playButton = document.getElementById('playButton');
+  <!-- Bottom Ad -->
+  <div class="ad-container">
+    <div class="ad-box">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'db78e49a3c97dc3562c3b48559ea4a28',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//peelwrinkle.com/db78e49a3c97dc3562c3b48559ea4a28/invoke.js"></script>
+    </div>
+  </div>
 
-    // make sure muted & playsinline set programmatically (max chance for autoplay)
-    try {
-      video.muted = true;
-      video.volume = 0;
-      video.playsInline = true;
-      video.setAttribute('muted','');
-      video.setAttribute('playsinline','');
-    } catch(e){}
+</div>
 
-    // instantiate Plyr early so UI exists immediately
-    const plyrPlayer = new Plyr(video, {
-      controls: ['play-large','play','mute','volume','settings','airplay','fullscreen','pip'],
-      hideControls: true,
-      clickToPlay: true,
-      inactivityTimeout: 3000, // 3 seconds
-      keyboard: { global: true }
-    });
+<script>
+(function(){
 
-    function showSpinner(text){
-      if(spinner){ spinner.style.display = 'flex'; spinnerText.textContent = text || 'Connecting…'; }
-    }
-    function hideSpinner(){ if(spinner) spinner.style.display = 'none'; }
+  const urlParams = new URLSearchParams(window.location.search);
+  let streamUrl = urlParams.get('url');
 
-    // hide overlay
-    function hideOverlay() {
-      if(!playOverlay) return;
-      playOverlay.classList.add('hidden');
-      // after transition, remove from accessibility
-      setTimeout(()=> { playOverlay.style.display = 'none'; }, 300);
-    }
-    // show overlay
-    function showOverlay() {
-      if(!playOverlay) return;
-      playOverlay.style.display = 'flex';
-      // ensure visible
-      setTimeout(()=> { playOverlay.classList.remove('hidden'); }, 10);
-    }
+  // DEFAULT STREAM URL IF NO PARAM FOUND
+  if (!streamUrl) {
+    streamUrl = "https://hugh.cdn.rumble.cloud/live/3fms19g4/slot-141/tpfw-oq8s/chunklist_DVR.m3u8";
+  }
 
-    // try to play and return a promise<boolean> indicating success
-    function tryPlay() {
-      return new Promise((resolve) => {
-        // small safety: ensure muted still true
-        try { video.muted = true; video.volume = 0; } catch(e){}
-        const p = video.play();
-        if (!p) {
-          // legacy or no promise returned — assume user gesture required
-          resolve(false);
-          return;
-        }
-        p.then(() => { resolve(true); })
-         .catch((err) => {
-            // autoplay blocked or other error
-            console.warn('Autoplay play() rejected:', err);
-            resolve(false);
-         });
-      });
-    }
+  // FIX URL FORMAT
+  streamUrl = decodeURIComponent(streamUrl);
+  streamUrl = streamUrl.replace(/\\\//g, "/");
+  streamUrl = streamUrl.replace(/\\\\/g, "");
 
-    // show spinner initially
-    showSpinner('Loading manifest…');
+  jwplayer("my-jwplayer").setup({
+    file: streamUrl,
+    type: "hls",
+    width: "100%",
+    aspectratio: "16:9",
+    autostart: true,
+    mute: false,
+    controls: true,
+    preload: "auto",
+    stretching: "uniform",
+    skin: { name: "seven" }
+  });
 
-    // interaction helpers for controls
-    function forceShowControls() {
-      try {
-        const c = plyrPlayer && plyrPlayer.elements && plyrPlayer.elements.container;
-        if (c) c.classList.remove('plyr--hide-controls');
-      } catch(e){}
-    }
-    ['mousemove','mousedown','touchstart','touchmove','pointermove'].forEach(evt => {
-      playerWrap.addEventListener(evt, () => {
-        forceShowControls();
-      }, {passive:true});
-    });
+})();
+</script>
 
-    // HLS playback with hls.js
-    if (Hls.isSupported()) {
-      const hls = new Hls({
-        enableWorker: true,
-        lowLatencyMode: true,
-        startLevel: -1,
-        maxBufferLength: 8,
-        backBufferLength: 30,
-        capLevelToPlayerSize: true,
-        liveSyncDurationCount: 3,
-        manifestLoadingTimeOut: 8000,
-        levelLoadingTimeOut: 8000,
-        fragLoadingTimeOut: 10000
-      });
-      window.hlsInstance = hls;
-
-      hls.on(Hls.Events.MANIFEST_LOADING, () => showSpinner('Loading manifest…'));
-      hls.on(Hls.Events.MANIFEST_PARSED, async () => {
-        // once manifest parsed, try autoplay
-        const ok = await tryPlay();
-        if (ok) {
-          hideOverlay();
-          hideSpinner();
-        } else {
-          // autoplay blocked — show overlay for user to tap
-          showOverlay();
-          hideSpinner();
-        }
-      });
-
-      hls.on(Hls.Events.FRAG_LOADED, () => hideSpinner());
-      hls.on(Hls.Events.FRAG_PARSING_INIT_SEGMENT, () => hideSpinner());
-      video.addEventListener('playing', hideSpinner);
-
-      hls.on(Hls.Events.ERROR, function(event, data) {
-        console.warn('hls error', data);
-        if (data && data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              showSpinner('Network error — retrying…');
-              hls.startLoad();
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              showSpinner('Media error — recovering…');
-              hls.recoverMediaError();
-              break;
-            default:
-              showSpinner('Stream error — reloading…');
-              setTimeout(()=>{ hls.destroy(); location.reload(); }, 1200);
-              break;
-          }
-        }
-      });
-
-      hls.loadSource(source);
-      hls.attachMedia(video);
-
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Native HLS (Safari)
-      showSpinner('Starting native HLS…');
-      video.src = source;
-      video.addEventListener('loadedmetadata', async () => {
-        const ok = await tryPlay();
-        if (ok) {
-          hideOverlay();
-          hideSpinner();
-        } else {
-          showOverlay();
-          hideSpinner();
-        }
-      });
-    } else {
-      document.body.innerHTML = '<p style="color:white;text-align:center;margin-top:20%">Your browser does not support HLS playback.</p>';
-    }
-
-    // overlay click / keyboard activate plays video (user gesture)
-    function onOverlayActivate(e) {
-      // ensure muted for autoplay success; user can unmute after
-      try { video.muted = false; video.volume = 5; } catch(e){}
-      video.play().then(() => {
-        hideOverlay();
-        hideSpinner();
-      }).catch((err)=>{
-        console.warn('Play from overlay failed:', err);
-        // as last resort, unmute and try again (some browsers require user gesture to unmute)
-        try { video.muted = false; video.volume = 5; } catch(e){}
-        video.play().then(()=>{ hideOverlay(); hideSpinner(); }).catch(()=>{ /* do nothing */ });
-      });
-    }
-
-    playButton.addEventListener('click', onOverlayActivate, {passive:true});
-    playOverlay.addEventListener('click', onOverlayActivate, {passive:true});
-    playOverlay.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') onOverlayActivate(); });
-
-    // try autoplay again shortly if still paused
-    setTimeout(()=>{ tryPlay().then(ok=>{ if(ok){ hideOverlay(); hideSpinner(); } }); }, 900);
-
-    // safety: hide spinner when playing
-    video.addEventListener('playing', hideSpinner);
-    video.addEventListener('error', () => showSpinner('Playback error — check source'));
-
-  })();
-  </script>
 </body>
-  <script
-  type="text/javascript"
-  src="//peelwrinkle.com/63/88/ac/6388ace5c2a702a7b58f724683244363.js"
-></script>
-
 </html>
